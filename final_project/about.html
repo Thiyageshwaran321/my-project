@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About of PK Building Material</title>
+  <style>
+    body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f3e9d7;
+  color: #333;
+
+}
+
+header {
+  
+  background-color: #f3e9d7;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.home-1{
+      margin-left:20px;
+        margin-right: 20px;
+         color:#333;
+           
+    }
+    .home-1:hover{
+         color:#d1b961;
+    }
+    
+    .material{
+    
+         margin-left:20px;
+        margin-right: 20px;
+    color:#333;
+    }
+    .material:hover{
+         color: #d1b961;        
+    }
+    .calculator{
+      margin-left:20px;
+        margin-right: 20px;
+         color:#333;
+    }
+    .calculator:hover{
+        color:#d1b961;
+    }
+    .about{
+         margin-left:20px;
+        margin-right: 20px;
+          color:#333;
+    }
+    .about:hover{
+         color:#d1b961;
+    }
+    .contact{ 
+        margin-left:20px;
+        margin-right: 20px;
+       color:#333;
+}
+    .contact:hover{ color:#d1b961;
+      }
+.headofpro{
+      margin-right:438px;
+    font-size:xx-large;
+    color: #d1b961;
+    margin-left:0;
+  align-items: center;
+    margin-bottom: 10px;
+  
+     
+
+}
+
+.logo img {
+  height: 50px;
+}
+
+.logo {
+  text-align: center;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #444;
+  font-weight: bold;
+}
+
+ nav{
+    padding-top:40px 
+    margin:-20px;
+   }
+
+    nav a {
+      color: #030202;;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20%;
+    }
+
+
+
+
+  
+
+    /* Login Modal Box */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(5px);
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 30px;
+      width: 300px;
+      color: white;
+      position: relative;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+      .login-box input[type="username"],
+    .login-box input[type="PASSWORD"]
+
+      {
+      width: 100%;
+      backdrop-filter: blur(10px);
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .login-box input::placeholder {
+      color: #ccc;
+    }
+
+    .login-box .options {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .login-box .options input[type="checkbox"] {
+      margin-right: 5px;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #000;
+      color:#d1b961;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .login-box .register-link {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color:#d1b961;
+      font-size: 18px;
+      cursor: pointer;          
+    }
+    
+.login{
+  color:  #d1b961;
+}
+.login:hover{
+  color:#333
+
+}
+.nav{
+  align-items: center;
+}
+.img1{
+  width:100%;
+  height:100%;
+}
+.frontbui{
+  padding: 12px 24px;
+   background-color: black;
+   color:#d1b961;
+    border: 2px solid black;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold; 
+    margin-right: 10px;
+}
+.frontbui:hover {
+  background-color: #2e2e2e;
+}
+
+.frontcal{
+  padding: 12px 24px;
+   border: 2px solid black;
+      color:#d1b961;
+   border-radius: 5px; 
+   text-decoration: none;
+   font-weight: bold;
+}
+
+.frontcal:hover{
+  background:rgb(243, 172, 8)
+}
+    .header1 {
+      background-color: #d1b961;
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #d1b961;
+      margin-top: 20px;
+    }
+
+    p {
+      margin-bottom: 15px;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .footer {
+      margin-top: 50px;
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+      padding-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+    
+  <header>
+  
+ <div class="logo" style="display: flex; align-items: center;  ;">
+    <img src="static/pklogo.png" alt="Logo" style="height: 130px; width: 180px; margin-right: 15px;margin-top:-15px;">
+    <div>
+       
+    </div>
+</div>
+
+  
+    <nav>
+      <a href="index.html" class="home-1">HOME</a> 
+      <a href="material.html" class="material">MATERIAL</a>
+      <a href="calculator.html" class="calculator">CALCULATOR</a>
+      <a href="about.html" class="about">ABOUT</a>
+      <a href="account.html" class="contact">MY ACCOUNT</a>
+      <a onclick="openLogin()" class="login">LOGIN</a>
+   
+   </nav>
+   </header>
+
+  <main>
+    
+      
+      <div class="modal" id="loginModal">
+    <div class="login-box">
+      <div class="close-btn" onclick="closeLogin()">&times;</div>
+      <h2>Login</h2>
+      <form action="connect.php" method="POST">
+     <input type="username" name="username" placeholder="Username" required />
+          <input type="password" name="password" placeholder="Password" required />
+        
+        </form>
+ 
+        <div class="options">
+          <label><input type="checkbox"> Remember me</label>
+          <a href="#">Forgot Password?</a>
+        </div>
+        <button type="submit">Login</button>
+        <div class="register-link">
+          Don’t have an account? <a href="C:\xampp\htdocs\final_project\login.html">SignUp</a>
+        </div>
+       </form>
+    </div>
+  </div>
+
+  <script>
+    function openLogin() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function closeLogin() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+
+    // Close modal if clicked outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+    </section>
+  </main>
+
+  
+
+  <div class="container">
+    <p><span class="highlight">PK Building Material</span> is your one-stop online platform for all your construction material needs. Whether you're building your dream home or managing a large construction site, we offer a wide range of high-quality materials to support your project from start to finish.</p>
+
+    <h2>Our Services</h2>
+    <p>We provide the following services to make your construction process easier and more efficient:</p>
+    <ul>
+      <li>🧱 Supply of building materials like cement, bricks, M-Sand, P-Sand, steel rods, and more.</li>
+      <li>🚚 Vehicle rental services including tippers, trucks, and loaders for transporting materials.</li>
+      <li>📦 Order management system to easily track, manage, and review your purchases.</li>
+      <li>📍 GPS tracking for delivery vehicles for real-time location updates.</li>
+    </ul>
+
+    <h2>Our Mission</h2>
+    <p>Our mission is to <strong>simplify the construction process</strong> by providing reliable material supply and delivery services. We aim to reduce delays and provide transparent pricing, ensuring our customers receive the best value and experience.</p>
+
+    <h2>Why Choose Us?</h2>
+    <p>
+      ✔️ Trusted quality materials<br>
+      ✔️ On-time delivery<br>
+      ✔️ Affordable rates<br>
+      ✔️ Easy ordering & tracking<br>
+      ✔️ Customer-first support
+    </p>
+
+    <div class="footer">
+      &copy; 2025 PK Building Material. All rights reserved.
+    </div>
+  </div>
+
+</body>
+</html>
