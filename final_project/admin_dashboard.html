@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | PK Building Material Suppliers</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background-color: #f7e9d5; /* beige background like your site */
+      color: #4b3b25;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 230px;
+      background-color: #9c7742; /* brown theme */
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      border-right: 3px solid #c9a66b;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 15px 25px;
+      display: block;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #7a5c30;
+      color: #fff7ec;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar */
+    .topbar {
+      background-color: #fff7ec;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-bottom: 2px solid #d4b68a;
+    }
+
+    .topbar h3 {
+      font-size: 20px;
+      color: #9c7742;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background-color: #9c7742;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #7a5c30;
+    }
+
+    /* Content area */
+    .content {
+      padding: 25px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .card {
+      background-color: #fffdf9;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      border: 1px solid #e0c6a1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card h4 {
+      margin-bottom: 10px;
+      color: #7a5c30;
+      font-weight: 600;
+    }
+
+    .card p {
+      font-size: 24px;
+      font-weight: bold;
+      color: #9c7742;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0c6a1;
+    }
+
+    th {
+      background-color: #9c7742;
+      color: white;
+    }
+
+    td button {
+      background-color: #9c7742;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    td button:hover {
+      background-color: #7a5c30;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #9c7742;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background-color: #f7e9d5;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>ADMIN PANEL</h2>
+    <a href="#" class="active" onclick="showSection('dashboard')">Dashboard</a>
+    <a href="#" onclick="showSection('products')">Manage Products</a>
+    <a href="#" onclick="showSection('orders')">Manage Orders</a>
+    <a href="#" onclick="showSection('customers')">Manage Customers</a>
+  </div>
+
+
+  <div class="main-content">
+    <div class="topbar">
+      <h3 id="page-title">Dashboard</h3>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="content" id="content">
+      <!-- Dashboard Section -->
+      <div id="dashboard" class="section">
+        <div class="grid">
+          <div class="card"><h4>Total Products</h4><p>15</p></div>
+          <div class="card"><h4>Total Orders</h4><p>120</p></div>
+          <div class="card"><h4>Total Customers</h4><p>45</p></div>
+          <div class="card"><h4>Total Income</h4><p>₹1,25,000</p></div>
+        </div>
+      </div>
+      
+
+      <!-- Products Section -->
+      <div id="products" class="section" style="display:none;">
+        <div class="card">
+          <h3 style="color:#9c7742;">Manage Products</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Material Name</th><th>Price</th><th>Unit</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>M-Sand</td><td>₹45</td><td>Per Unit</td><td><button>Edit</button></td></tr>
+              <tr><td>2</td><td>P-Sand</td><td>₹55</td><td>Per Unit</td><td><button>Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="orders" class="section" style="display:none;">
+        <div class="card">
+          <h3 style="color:#9c7742;">Manage Orders</h3>
+       
+
+
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th><th>Customer</th><th>Material</th><th>Quantity</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>O001</td><td>Ravi Kumar</td><td>Cement</td><td>20 Bags</td><td>Delivered</td></tr>
+              <tr><td>O002</td><td>Anand</td><td>M-Sand</td><td>5 Tons</td><td>Pending</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Customers Section -->
+      <div id="customers" class="section" style="display:none;">
+        <div class="card">
+          <h3 style="color:#9c7742;">Customer List</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Phone</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Ravi Kumar</td><td>ravi@gmail.com</td><td>9876543210</td></tr>
+              <tr><td>2</td><td>Anand</td><td>anand@gmail.com</td><td>9876500001</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+      document.getElementById("page-title").innerText = 
+        sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function logout() {
+      alert("Logging out...");
+      window.location.href = "index.html"; // redirect to login page
+    }
+  </script>
+</body>
+</html>

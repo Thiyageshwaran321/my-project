@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +9,12 @@
 </head>
 <body>
    <header>
-  
+  <?php if (isset($_GET['msg']) && $_GET['msg'] == 'added'): ?>
+  <script>
+    alert("Successfully added to cart!");
+  </script>
+<?php endif; ?>
+
  <div class="logo" style="display: flex; align-items: center;  ;">
     <img src="static/pklogo.png" alt="Logo" style="height: 130px; width: 180px; margin-right: 15px;margin-top:-15px;">
     <div>
@@ -19,7 +26,7 @@
       <a href="material.html" class="material">MATERIAL</a>
       <a href="calculator.html" class="calculator">CALCULATOR</a>
       <a href="about.html" class="about">ABOUT</a>
-      <a href="my_account.html" class="contact">MY ACCOUNT</a>
+      <a href="account.html" class="contact">MY ACCOUNT</a>
       <a onclick="openLogin()" class="login">LOGIN</a>
    
    </nav>
@@ -109,12 +116,16 @@
           <h3>MSand</h3>
           <p class="price">₹4500 per unit</p>
           <label>Choose unit:   </label>
-          <input type="number" class="unit"name="unit" required>
-          <input type="hidden" name="material" value="MSand">
-          <input type="hidden" name="price" value="4500">
-          <div class="btn-group">
-          <button class="order-btn">Order Now</button>
+        <form action="place_order.php" method="POST">
+             <input type="hidden" name="material" value="MSand">
+             <input type="hidden" name="price" value="4500">
+             <input type="number" name="unit" required>
+             <button type="submit" name="order_btn">Order Now</button>
+              <div class="btn-group">
+       
           <button class="calc-btn">Add to cart</button> 
+        </form>
+         
         </div>
   </div>  
 </form>
@@ -134,7 +145,14 @@
         </div>
   </div>  
 </form>
-
+<?php if (isset($_SESSION['customer_id'])): ?>
+  <form action="add_to_cart.php?product_id=<?php echo $row['id']; ?>" method="post" style="display:inline;">
+    <input type="hidden" name="quantity" value="1" />
+    <button type="submit">Add to Cart</button>
+  </form>
+<?php else: ?>
+  <a href="index.php">Login to Order</a>
+<?php endif; ?>
 <form action="place_order.php" method="POST">
      <div class="card">
           <img src="static/dust.webp" alt="Construction" class="material-img">
@@ -332,32 +350,25 @@
         </div>
   </div>  
 </form>
-<script>
-  // Get all buttons with the specified classes
-  const orderButtons = document.querySelectorAll('.order-btn');
-  const cartButtons = document.querySelectorAll('.calc-btn');
+<form action="add_to_cart.php" method="POST">
+  <div class="card">
+    <img src="static/2m-sand.jpg" alt="MSand" class="material-img">
+    <h3>MSand</h3>
+    <p class="price">₹4500 per unit</p>
+    <label>Choose unit:</label>
+    <input type="number" name="unit" required>
+    <input type="hidden" name="material" value="MSand">
+    <input type="hidden" name="price" value="4500">
+    <div class="btn-group">
+      <button type="submit" name="add_to_cart" class="calc-btn">Add to cart</button>
+      <button type="submit" formaction="place_order.php" class="order-btn">Order Now</button>
+    </div>
+  </div>
+</form>
 
-  // Add event for "Order Now"
-  orderButtons.forEach(button => {
-    button.addEventListener('click', function (e) {
-      e.preventDefault(); // stop form from submitting
-      alert('Ordered successfully!');
-    });
-  });
-
-  // Add event for "Add to Cart"
-  cartButtons.forEach(button => {
-    button.addEventListener('click', function (e) {
-      e.preventDefault(); // stop form from submitting
-      alert('Successfully added to cart!');
-    });
-  });
-</script>
 
 
       <!-- You can duplicate the card blocks and just change the names/prices accordingly -->
     </div>
   </div>
 </body>
-</html>
-

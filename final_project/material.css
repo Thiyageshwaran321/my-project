@@ -7,7 +7,7 @@ body {
 }
 
 header {
-  
+  margin-right:20px;
   background-color: #f3e9d7;
   padding: 20px;
   display: flex;
@@ -89,8 +89,8 @@ nav a {
 }
 
  nav{
-    padding-top:40px 
-    margin:-20px;
+    padding-top:20px ;
+    margin :20px;
    }
 
     nav a {
@@ -138,7 +138,7 @@ nav a {
       text-align: center;
       margin-bottom: 20px;
     }
-      .login-box input[type="username"],
+      .login-box input[type="text"],
     .login-box input[type="PASSWORD"]
 
       {
@@ -197,10 +197,13 @@ nav a {
 .login{
   color:  #d1b961;
 }
+    
+
 .login:hover{
   color:#333
 
 }
+
 .nav{
   align-items: center;
 }
@@ -234,7 +237,6 @@ nav a {
 .frontcal:hover{
   background:rgb(243, 172, 8)
 }
-
 
 .container {
   padding: 20px;
@@ -315,3 +317,19 @@ h3 {
 .order-btn:hover, .calc-btn:hover {
   background-color: #222;
 }
+#roleSelectBox button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  background: #000;
+  color: #d1b961;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#roleSelectBox button:hover {
+  background: #222;
+}
+

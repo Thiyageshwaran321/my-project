@@ -13,7 +13,7 @@
 }
 
 header {
-  
+  margin-right:20px;
   background-color: #f3e9d7;
   padding: 20px;
   display: flex;
@@ -95,8 +95,8 @@ nav a {
 }
 
  nav{
-    padding-top:40px 
-    margin:-20px;
+    padding-top:20px ;
+    margin :20px;
    }
 
     nav a {
@@ -203,11 +203,16 @@ nav a {
 .login{
   color:  #d1b961;
 }
+    
+
 .login:hover{
   color:#333
 
 }
 
+.nav{
+  align-items: center;
+}
 .img1{
   width:100%;
   height:100%;
@@ -238,11 +243,11 @@ nav a {
 .frontcal:hover{
   background:rgb(243, 172, 8)
 }
-    .calculator1 {
+   .calculator1 {
       background: #a67c52;
-      padding: 30px;
-      max-width: 400px;
-      margin: 10px;
+      padding: 50px;
+      max-width: 500px;
+      margin: 50px;
       margin-left:50px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -269,12 +274,28 @@ nav a {
       font-weight: bold;
       background-color: #a67c52;
       border-radius: 5px;
-    width: 500px;
+    width: 600px;
     height: 200px;
-    margin-left: 50%;
+    margin-left: 55%;
     text-align: center;
     align-items: center;
     }
+    #roleSelectBox button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  background: #000;
+  color: #d1b961;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#roleSelectBox button:hover {
+  background: #222;
+}
+
 
     
 
@@ -296,7 +317,7 @@ nav a {
       <a href="material.html" class="material">MATERIAL</a>
       <a href="calculator.html" class="calculator">CALCULATOR</a>
       <a href="about.html" class="about">ABOUT</a>
-      <a href="account.html" class="contact">MY ACCOUNT</a>
+      <a href="my_account.html" class="contact">MY ACCOUNT</a>
       <a onclick="openLogin()" class="login">LOGIN</a>
    
    </nav>
@@ -304,45 +325,77 @@ nav a {
 
      <main>
     <section class="hero">
-      <div class="modal" id="loginModal">
-    <div class="login-box">
-      <div class="close-btn" onclick="closeLogin()">&times;</div>
-      <h2>Login</h2>
-      <form action="connect.php" method="POST">
-     <input type="username" name="username" placeholder="Username" required />
-          <input type="password" name="password" placeholder="Password" required />
-        
-        </form>
- 
-        <div class="options">
-          <label><input type="checkbox"> Remember me</label>
-          <a href="#">Forgot Password?</a>
-        </div>
-        <button type="submit">Login</button>
-        <div class="register-link">
-          Don’t have an account? <a href="C:\xampp\htdocs\final_project\login.html">SignUp</a>
-        </div>
-       </form>
-    </div>
+     <!-- Login Modal -->
+<div class="modal" id="loginModal">
+  <div class="login-box" id="roleSelectBox">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Login</h2>
+    <p style="text-align:center;">Select your role</p>
+    <button onclick="showCustomerLogin()">Customer</button>
+    <button onclick="showAdminLogin()">Admin</button>
   </div>
 
-  <script>
-    function openLogin() {
-      document.getElementById('loginModal').style.display = 'flex';
-    }
+  <!-- Customer Login -->
+  <div class="login-box" id="customerLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Customer Login</h2>
+    <form action="customer_connect.php" method="POST">
+      <input type="username" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div class="options">
+        <label><input type="checkbox"> Remember me</label>
+        <a href="#">Forgot Password?</a>
+      </div>
+      <button type="submit">Login</button>
+      <div class="register-link">
+        Don’t have an account? <a href="signup.html">SignUp</a>
+      </div>
+    </form>
+  </div>
 
-    function closeLogin() {
-      document.getElementById('loginModal').style.display = 'none';
-    }
+  <!-- Admin Login -->
+  <div class="login-box" id="adminLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Admin Login</h2>
+    <form action="admin_connect.php" method="POST">
+      <input type="username" name="adminid" placeholder="Admin ID" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
 
-    // Close modal if clicked outside
-    window.onclick = function(event) {
-      const modal = document.getElementById('loginModal');
-      if (event.target === modal) {
-        modal.style.display = 'none';
-      }
+<script>
+  function openLogin() {
+    document.getElementById('loginModal').style.display = 'flex';
+    document.getElementById('roleSelectBox').style.display = 'block';
+    document.getElementById('customerLoginBox').style.display = 'none';
+    document.getElementById('adminLoginBox').style.display = 'none';
+  }
+
+  function closeLogin() {
+    document.getElementById('loginModal').style.display = 'none';
+  }
+
+  function showCustomerLogin() {
+    document.getElementById('roleSelectBox').style.display = 'none';
+    document.getElementById('customerLoginBox').style.display = 'block';
+  }
+
+  function showAdminLogin() {
+    document.getElementById('roleSelectBox').style.display = 'none';
+    document.getElementById('adminLoginBox').style.display = 'block';
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('loginModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
     }
-  </script>
+  }
+</script>
+
+
     </section>
   </main>
 

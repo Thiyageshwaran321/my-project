@@ -1,3 +1,32 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+session_start();
+include 'db.php';
+
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $stmt = $conn->prepare("SELECT * FROM customers WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $customer = $result->fetch_assoc();
+
+    if ($customer && password_verify($password, $customer['password'])) {
+        $_SESSION['customer_id'] = $customer['id'];
+        $_SESSION['customer_name'] = $customer['name'];
+        header("Location: place_order.php");
+        exit();
+    } else {
+        echo "<p style='color:red;'>Invalid email or password.</p>";
+    }
+}
+?>
+
+<!-- HTML login form -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,15 +84,14 @@
     <div class="close-btn" onclick="closeLogin()">&times;</div>
     <h2>Customer Login</h2>
     <form action="customer_connect.php" method="POST">
-      <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password" required />
+    
       <div class="options">
         <label><input type="checkbox"> Remember me</label>
         <a href="#">Forgot Password?</a>
       </div>
     <form action="login.php" method="POST">
-  <input type="email" name="email" required>
-  <input type="password" name="password" required>
+   <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
   <button type="submit" name="login">Login</button>
 </form>
 

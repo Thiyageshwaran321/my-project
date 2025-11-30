@@ -1,31 +1,29 @@
 <?php
-$host = "localhost";
-$user = "root";
+$servername = "localhost";
+$username = "root";
 $password = "";
-$dbname = "user_db"; // make sure this database exists
+$dbname = "pkbuilders";  // your database name
 
-// Create connection
-$conn = new mysqli($host, $user, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+  die("Connection failed: " . $conn->connect_error);
 }
 
-// Collect form data
-$username = $_POST['username'];
-$password = $_POST['password'];
-$email = $_POST['email'];
-$mobilenum = $_POST['mobilenum'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $username = $_POST['username'];
+  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+  $email = $_POST['email'];
+  $mobilenum = $_POST['mobilenum'];
 
-// Insert into database
-$sql = "INSERT INTO users (username, password, email, mobilenum)
-        VALUES ('$username', '$password', '$email', '$mobilenum')";
+  $sql = "INSERT INTO customers (username, password, email, mobilenum)
+          VALUES ('$username', '$password', '$email', '$mobilenum')";
 
-if ($conn->query($sql) === TRUE) {
-    echo "New record inserted successfully!";
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
+  if ($conn->query($sql) === TRUE) {
+    echo "<script>alert('Account created successfully!'); window.location.href='index.html';</script>";
+  } else {
+    echo "Error: " . $conn->error;
+  }
 }
 
 $conn->close();
