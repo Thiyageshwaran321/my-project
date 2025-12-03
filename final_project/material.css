@@ -138,7 +138,7 @@ nav a {
       text-align: center;
       margin-bottom: 20px;
     }
-      .login-box input[type="text"],
+      .login-box input[type="username"],
     .login-box input[type="PASSWORD"]
 
       {
@@ -257,7 +257,7 @@ h1 {
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 30px; /* <<< GAP BETWEEN CARDS */
+  gap: 50px; /* <<< GAP BETWEEN CARDS */
   justify-items: center;
   padding: 10px;
 }
@@ -293,7 +293,7 @@ h3 {
   width: 60px;
   padding: 4px;
   margin-bottom: 10px;
-  border: none;
+  margin-left:20px;
   border-radius: 4px;
 }
 
@@ -333,3 +333,6 @@ h3 {
   background: #222;
 }
 
+div {
+  transition: width 2s, height 4s, background-color 3s;
+}

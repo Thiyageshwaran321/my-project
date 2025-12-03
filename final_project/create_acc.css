@@ -11,6 +11,9 @@ body , html {
   align-items: center;
 }
 
+div {
+  transition: width 2s, height 4s, background-color 3s;
+}
 
 .login-box {
   background: rgba(255, 255, 255, 0.15);
