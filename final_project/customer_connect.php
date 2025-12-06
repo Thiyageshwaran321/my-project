@@ -1,42 +1,41 @@
-
-
-
 <?php
 session_start();
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "pkbuilders";
+include 'db.php'; // Make sure this file defines $conn correctly
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// START — customer login
+if (isset($_POST['username']) && isset($_POST['password'])) {
 
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // FETCH USER USING CORRECT COLUMN NAME
+    $stmt = $conn->prepare("SELECT * FROM customers WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 1) {
+
+        $customer = $result->fetch_assoc();
+
+        // password match check
+        if ($password == $customer['password']) {
+
+            // SET CORRECT SESSION VARIABLES
+            $_SESSION['customer_id'] = $customer['customer_id'];  // correct column
+            $_SESSION['username'] = $customer['username'];        // correct column
+            $_SESSION['email'] = $customer['email'];              // correct column
+            $_SESSION['mobilenum'] = $customer['mobilenum'];      // correct column
+
+            header("Location: material.html");
+            exit;
+        } else {
+            echo "<script>alert('Wrong Password'); window.location='index.html';</script>";
+        }
+
+    } else {
+        echo "<script>alert('User Not Found'); window.location='index.html';</script>";
+    }
 }
-
-$user = $_POST['username'];
-$pass = $_POST['password'];
-
-$sql = "SELECT * FROM customers WHERE username='$user'";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-  $row = $result->fetch_assoc();
-  if (password_verify($pass, $row['password'])) {
-    $_SESSION['username'] = $row['username'];
-    $_SESSION['email'] = $row['email'];
-    $_SESSION['mobilenum'] = $row['mobilenum'];
-    header("Location: account.php");
-    exit();
-  } else {
-    echo "<script>alert('Invalid password!'); window.history.back();</script>";
-  }
-} else {
-  echo "<script>alert('No account found! Please register.'); window.location.href='login.html';</script>";
-}
-session_start();
-$_SESSION['customer_id'] = $row['customer_id'];  // or your column name
-header("Location: material.html");
-exit();
-$conn->close();
 ?>

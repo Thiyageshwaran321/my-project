@@ -4,271 +4,236 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard | PK Building Material Suppliers</title>
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Poppins, sans-serif; }
 
     body {
       display: flex;
-      height: 100vh;
-      background-color: #f7e9d5; /* beige background like your site */
+      background-color: #f7e9d5;
       color: #4b3b25;
+      height: 100vh;
     }
 
-    /* Sidebar */
+    /* -------------------------------- SIDEBAR -------------------------------- */
     .sidebar {
       width: 230px;
-      background-color: #9c7742; /* brown theme */
+      background-color: #9c7742;
       color: white;
-      display: flex;
-      flex-direction: column;
       padding: 20px 0;
       border-right: 3px solid #c9a66b;
     }
-
     .sidebar h2 {
       text-align: center;
       margin-bottom: 30px;
-      font-size: 22px;
-      letter-spacing: 1px;
-      color: #fff;
     }
-
     .sidebar a {
-      color: white;
-      text-decoration: none;
-      padding: 15px 25px;
       display: block;
-      transition: background 0.3s, color 0.3s;
+      padding: 15px 25px;
+      text-decoration: none;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
     }
-
-    .sidebar a:hover,
-    .sidebar a.active {
+    .sidebar a:hover, .sidebar a.active {
       background-color: #7a5c30;
-      color: #fff7ec;
     }
 
-    /* Main content */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Top bar */
+    /* -------------------------------- TOP BAR -------------------------------- */
+    .main-content { flex: 1; display: flex; flex-direction: column; }
     .topbar {
       background-color: #fff7ec;
       padding: 15px 25px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       border-bottom: 2px solid #d4b68a;
-    }
-
-    .topbar h3 {
-      font-size: 20px;
-      color: #9c7742;
-      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .logout-btn {
-      background-color: #9c7742;
-      color: white;
-      border: none;
       padding: 8px 15px;
+      border: none;
+      background: #9c7742;
+      color: white;
       border-radius: 5px;
       cursor: pointer;
-      transition: 0.3s;
     }
+    .logout-btn:hover { background:#7a5c30; }
 
-    .logout-btn:hover {
-      background-color: #7a5c30;
-    }
-
-    /* Content area */
+    /* -------------------------------- CONTENT AREA -------------------------------- */
     .content {
       padding: 25px;
       overflow-y: auto;
-      flex: 1;
     }
 
     .card {
-      background-color: #fffdf9;
+      background: #fffdf9;
+      border: 1px solid #e0c6a1;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
-      border: 1px solid #e0c6a1;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
+    /* -------------------------------- TABLE -------------------------------- */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid #e0c6a1; }
+    th { background: #9c7742; color: white; }
 
-    .card h4 {
-      margin-bottom: 10px;
-      color: #7a5c30;
-      font-weight: 600;
-    }
-
-    .card p {
-      font-size: 24px;
-      font-weight: bold;
-      color: #9c7742;
-    }
-
-    table {
+    textarea {
       width: 100%;
-      border-collapse: collapse;
-      font-size: 15px;
-    }
-
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #e0c6a1;
-    }
-
-    th {
-      background-color: #9c7742;
-      color: white;
-    }
-
-    td button {
-      background-color: #9c7742;
-      color: white;
-      border: none;
-      padding: 5px 10px;
+      padding: 6px;
       border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-deliver {
+      background: #3e8a3e;
+      padding: 6px 12px;
+      color: white;
+      border-radius: 4px;
+      border: none;
       cursor: pointer;
-      transition: 0.3s;
     }
+    .btn-deliver:hover { background:#2f6b2f; }
 
-    td button:hover {
-      background-color: #7a5c30;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background-color: #9c7742;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background-color: #f7e9d5;
-    }
+    .section { display: none; }
+    .section.active { display: block; }
   </style>
 </head>
+
 <body>
+
+  <!-- -------------------------------- SIDEBAR -------------------------------- -->
   <div class="sidebar">
     <h2>ADMIN PANEL</h2>
-    <a href="#" class="active" onclick="showSection('dashboard')">Dashboard</a>
-    <a href="#" onclick="showSection('products')">Manage Products</a>
-    <a href="#" onclick="showSection('orders')">Manage Orders</a>
-    <a href="#" onclick="showSection('customers')">Manage Customers</a>
+
+    <a class="active" onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('orders')">Manage Orders</a>
+    <a onclick="showSection('feedback_admin')">Feedback</a>
+
   </div>
 
-
+  <!-- -------------------------------- MAIN CONTENT -------------------------------- -->
   <div class="main-content">
+
+    <!-- TOP BAR -->
     <div class="topbar">
       <h3 id="page-title">Dashboard</h3>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
-    <div class="content" id="content">
-      <!-- Dashboard Section -->
-      <div id="dashboard" class="section">
-        <div class="grid">
-          <div class="card"><h4>Total Products</h4><p>15</p></div>
-          <div class="card"><h4>Total Orders</h4><p>120</p></div>
-          <div class="card"><h4>Total Customers</h4><p>45</p></div>
-          <div class="card"><h4>Total Income</h4><p>₹1,25,000</p></div>
-        </div>
-      </div>
-      
+    <!-- CONTENT -->
+    <div class="content">
 
-      <!-- Products Section -->
-      <div id="products" class="section" style="display:none;">
+      <!-- ---------------------- DASHBOARD SECTION ---------------------- -->
+      <div id="dashboard" class="section active">
         <div class="card">
-          <h3 style="color:#9c7742;">Manage Products</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th><th>Material Name</th><th>Price</th><th>Unit</th><th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>1</td><td>M-Sand</td><td>₹45</td><td>Per Unit</td><td><button>Edit</button></td></tr>
-              <tr><td>2</td><td>P-Sand</td><td>₹55</td><td>Per Unit</td><td><button>Edit</button></td></tr>
-            </tbody>
-          </table>
+          <h3 style="color:#9c7742;">Welcome Admin</h3>
+          <p>Use the sidebar to manage orders & customer feedback.</p>
         </div>
       </div>
 
-      <!-- Orders Section -->
-      <div id="orders" class="section" style="display:none;">
+      <!-- ---------------------- MANAGE ORDERS ---------------------- -->
+      <div id="orders" class="section">
         <div class="card">
           <h3 style="color:#9c7742;">Manage Orders</h3>
-       
-
 
           <table>
             <thead>
               <tr>
-                <th>Order ID</th><th>Customer</th><th>Material</th><th>Quantity</th><th>Status</th>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Material</th>
+                <th>Qty</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr><td>O001</td><td>Ravi Kumar</td><td>Cement</td><td>20 Bags</td><td>Delivered</td></tr>
-              <tr><td>O002</td><td>Anand</td><td>M-Sand</td><td>5 Tons</td><td>Pending</td></tr>
+
+            <tbody id="orderData">
+              <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Customers Section -->
-      <div id="customers" class="section" style="display:none;">
+      <!-- ---------------------- FEEDBACK SECTION ---------------------- -->
+      <div id="feedback_admin" class="section">
         <div class="card">
-          <h3 style="color:#9c7742;">Customer List</h3>
+          <h3 style="color:#9c7742;">Customer Feedback</h3>
+
           <table>
-            <thead>
-              <tr>
-                <th>ID</th><th>Name</th><th>Email</th><th>Phone</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>1</td><td>Ravi Kumar</td><td>ravi@gmail.com</td><td>9876543210</td></tr>
-              <tr><td>2</td><td>Anand</td><td>anand@gmail.com</td><td>9876500001</td></tr>
-            </tbody>
+            <tr>
+                <th>User</th>
+                <th>Feedback</th>
+                <th>Date</th>
+                <th>Reply</th>
+            </tr>
+
+           
+                <td>
+                    <form action="reply_feedback.php" method="POST">
+                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                        <textarea name="reply" placeholder="Type reply..." required><?= $row['admin_reply'] ?></textarea>
+                        <button class="btn-deliver" style="margin-top:5px;">Send Reply</button>
+                    </form>
+                </td>
+            </tr>
+            
           </table>
         </div>
       </div>
+
     </div>
   </div>
 
-  <script>
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-      document.getElementById(sectionId).style.display = 'block';
-      document.getElementById("page-title").innerText = 
-        sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
-      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-      event.target.classList.add('active');
-    }
+<script>
+/* ---------------- SWITCH SECTIONS ---------------- */
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
 
-    function logout() {
-      alert("Logging out...");
-      window.location.href = "index.html"; // redirect to login page
-    }
-  </script>
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove("active"));
+    event.target.classList.add("active");
+
+    document.getElementById("page-title").innerText =
+        sectionId.replace("_admin", "").replace("-", " ").toUpperCase();
+
+    if (sectionId === "orders") loadOrders();
+}
+
+/* ---------------- LOAD ALL ORDERS ---------------- */
+function loadOrders() {
+    fetch("load_orders.php")
+      .then(res => res.text())
+      .then(data => {
+          document.getElementById("orderData").innerHTML = data;
+      });
+}
+
+/* ---------------- UPDATE ORDER STATUS ---------------- */
+function updateStatus(order_id, status) {
+    let f = new FormData();
+    f.append("order_id", order_id);
+    f.append("status", status);
+
+    fetch("admin_update.php", { method: "POST", body: f })
+      .then(res => res.text())
+      .then(data => {
+          if (data.trim() === "success") {
+            alert("Status updated!");
+            loadOrders();
+          } else {
+            alert("Failed to update!");
+          }
+      });
+}
+
+/* ---------------- LOGOUT ---------------- */
+function logout() {
+    window.location.href = "index.html";
+}
+</script>
+
 </body>
 </html>

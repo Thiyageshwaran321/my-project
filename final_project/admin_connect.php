@@ -1,34 +1,47 @@
 <?php
 // admin_connect.php
+session_start();
+
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "pkbuilders"; // your database name
+$dbname = "pkbuilders";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Get values from form
 $adminid = $_POST['adminid'];
 $password = $_POST['password'];
 
-// Check credentials in admin table (you can change table name as needed)
-$sql = "SELECT * FROM admin_login WHERE adminid='$adminid' AND password='$password'";
-$result = $conn->query($sql);
+// FIXED: Select from correct admin table
+$sql = "SELECT * FROM admin_login WHERE adminid = ? AND password = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ss", $adminid, $password);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-  // Successful login — redirect to admin dashboard
-  header("Location: admin_dashboard.html");
-  exit();
+if ($result->num_rows === 1) {
+
+    // save admin login session
+    $_SESSION['admin_id'] = $adminid;
+
+    echo "<script>
+            alert('Login Successful');
+            window.location.href='admin_dashboard.php';
+          </script>";
+    exit;
+
 } else {
-  echo "<script>
-          alert('Invalid Admin ID or Password');
-          window.location.href='index.html';
-        </script>";
+
+    echo "<script>
+            alert('Invalid Admin ID or Password');
+            window.location.href='index.html';
+          </script>";
 }
 
 $conn->close();
 ?>
+ 

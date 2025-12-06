@@ -1,122 +1,69 @@
 <?php
 session_start();
-include("db_connect.php");
+include "db.php";
 
-session_start();
-if(!isset($_SESSION['adminid'])){
-    header("Location: admin_dashboard.php");
-    exit();
-}
+// If you want admin login protection add:
+# if (!isset($_SESSION['admin'])) { header("Location: admin_login.php"); exit(); }
 
-
-// Update order status (if admin changes it)
-if (isset($_POST['update_status'])) {
-  $order_id = $_POST['order_id'];
-  $status = $_POST['status'];
-  $conn->query("UPDATE orders SET status='$status' WHERE order_id=$order_id");
-}
-
-// Fetch all orders
-$sql = "SELECT o.order_id, o.material_name, o.quantity, o.price_per_unit, 
-               o.total_amount, o.status, o.order_date, 
-               c.username AS customer_name
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        ORDER BY o.order_date DESC";
-$result = $conn->query($sql);
+$result = $conn->query("SELECT * FROM orders ORDER BY order_id DESC");
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Admin - Orders | PK BUILDERS</title>
-  <link rel="stylesheet" href="admin.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f2e8;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #4a2f1a;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 25px;
-      background-color: #fff;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #d8b58d;
-      color: #fff;
-    }
-    form {
-      display: inline;
-    }
-    select {
-      padding: 5px;
-      border-radius: 5px;
-    }
-    button {
-      background-color: #4a2f1a;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #6b3d23;
-    }
-  </style>
+<title>Admin Order Panel</title>
+<style>
+body { font-family: Arial; background:#f2e7d5; }
+table { width:90%; margin:20px auto; border-collapse: collapse; background:#fff; }
+th, td { padding:12px; border:1px solid #ccc; text-align:left; }
+th { background:#d1b961; }
+select { padding:5px; }
+button { padding:6px 12px; background:#d1b961; border:none; cursor:pointer; }
+button:hover { background:#b7953a; }
+</style>
 </head>
+
 <body>
-  <h1>Admin Dashboard - All Orders</h1>
+<h2 style="text-align:center;">Admin — Update Order Status</h2>
 
-  <table>
-    <tr>
-      <th>Order ID</th>
-      <th>Customer</th>
-      <th>Material</th>
-      <th>Quantity</th>
-      <th>Price</th>
-      <th>Total</th>
-      <th>Date</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
+<table>
+<tr>
+  <th>Order ID</th>
+  <th>Customer ID</th>
+  <th>Material</th>
+  <th>Units</th>
+  <th>Total</th>
+  <th>Current Status</th>
+  <th>Update</th>
+</tr>
 
-    <?php while ($row = $result->fetch_assoc()): ?>
-    <tr>
-      <td><?= $row['order_id'] ?></td>
-      <td><?= htmlspecialchars($row['customer_name']) ?></td>
-      <td><?= htmlspecialchars($row['material_name']) ?></td>
-      <td><?= $row['quantity'] ?></td>
-      <td>₹<?= $row['price_per_unit'] ?></td>
-      <td>₹<?= $row['total_amount'] ?></td>
-      <td><?= $row['order_date'] ?></td>
-      <td><?= $row['status'] ?></td>
-      <td>
-        <form method="POST">
-          <input type="hidden" name="order_id" value="<?= $row['order_id'] ?>">
-          <select name="status">
-            <option <?= $row['status']=="Pending" ? "selected" : "" ?>>Pending</option>
-            <option <?= $row['status']=="Shipped" ? "selected" : "" ?>>Shipped</option>
-            <option <?= $row['status']=="Delivered" ? "selected" : "" ?>>Delivered</option>
-          </select>
-          <button type="submit" name="update_status">Update</button>
-        </form>
-      </td>
-    </tr>
-    <?php endwhile; ?>
-  </table>
+<?php while($o = $result->fetch_assoc()): ?>
+<tr>
+  <td><?= $o['order_id']; ?></td>
+  <td><?= $o['customer_id']; ?></td>
+  <td><?= $o['material_name']; ?></td>
+  <td><?= $o['quantity']; ?></td>
+  <td>₹<?= $o['total_amount']; ?></td>
+
+  <td><b><?= $o['order_status']; ?></b></td>
+
+  <td>
+    <form action="update_status.php" method="POST">
+      <input type="hidden" name="order_id" value="<?= $o['order_id']; ?>">
+
+      <select name="status">
+        <option value="placed" <?= ($o['order_status']=="placed")?"selected":"" ?>>Order Placed</option>
+        <option value="shipped" <?= ($o['order_status']=="shipped")?"selected":"" ?>>Shipped</option>
+        <option value="out_for_delivery" <?= ($o['order_status']=="out_for_delivery")?"selected":"" ?>>Out For Delivery</option>
+        <option value="delivered" <?= ($o['order_status']=="delivered")?"selected":"" ?>>Delivered</option>
+      </select>
+
+      <button type="submit">Update</button>
+    </form>
+  </td>
+</tr>
+<?php endwhile; ?>
+</table>
 
 </body>
 </html>
