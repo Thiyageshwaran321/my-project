@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PK Building Material Suppliers</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="background-image: url('back.jpg'); background-size: cover;">
+
+  <header>
+  
+ <div class="logo" style="display: flex; align-items: center;  ;">
+    <img src="static/pklogo.png" alt="Logo" style="height: 130px; width: 180px; margin-right: 15px;margin-top:-15px;">
+    <div>
+       
+    </div>
+</div>
+
+  
+    <nav>
+      <a href="index.html" class="home-1">HOME</a> 
+      <a href="material.html" class="material">MATERIAL</a>
+      <a href="calculator.html" class="calculator">CALCULATOR</a>
+      <a href="about.html" class="about">ABOUT</a>
+      <a href="my_account.html" class="contact">MY ACCOUNT</a>
+     
+      <a onclick="openLogin()" class="login">LOGIN</a>
+   
+   </nav>
+   </header>
+
+
+    <section class="hero">
+      <div class="hero-text">
+        <h2>Your Trusted Construction Material Partner</h2>
+        <h1>Get high quality construction materials</h1>
+       
+      </div>
+      <div class="hero-image">
+        <img src="static/pkneed.png" alt="Construction Illustration" />
+      </div>
+     <!-- Login Modal -->
+<div class="modal" id="loginModal">
+  <div class="login-box" id="roleSelectBox">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Login</h2>
+    <p style="text-align:center;">Select your role</p>
+    <button onclick="showCustomerLogin()">Customer</button>
+    <button onclick="showAdminLogin()">Admin</button>
+  </div>
+
+  <!-- Customer Login -->
+  <div class="login-box" id="customerLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Customer Login</h2>
+    <form action="customer_connect.php" method="POST">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div class="options">
+        <label><input type="checkbox"> Remember me</label>
+        <a href="#">Forgot Password?</a>
+      </div>
+    <form action="login.php" method="POST">
+
+  <button type="submit" name="login">Login</button>
+</form>
+
+
+     
+      <div class="register-link">
+        Don’t have an account? <a href="login.html">SignUp</a>
+      </div>
+    </form>
+  </div>
+  
+
+<!-- Admin Login -->
+<div class="login-box" id="adminLoginBox" style="display:none;">
+  <div class="close-btn" onclick="closeLogin()">&times;</div>
+  <h2>Admin Login</h2>
+  <form action="admin_connect.php" method="POST">
+    <input type="text" name="adminid" placeholder="Admin ID" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+
+
+
+
+
+
+<script>
+  function adminLogin() {
+    const adminID = document.getElementById("adminid").value.trim();
+    const password = document.getElementById("adminpass").value.trim();
+
+    // You can change these credentials later
+    const validAdminID = "admin";
+    const validPassword = "12345";
+
+    if (adminID === validAdminID && password === validPassword) {
+      alert("Login successful! Redirecting to Admin Dashboard...");
+      window.location.href = "admin_dashboard.html"; // your dashboard page
+      return false; // stop normal form submission
+    } else {
+      alert("Invalid Admin ID or Password");
+      return false;
+    }
+  }
+</script>
+
+
+<script>
+  function openLogin() {
+    document.getElementById('loginModal').style.display = 'flex';
+    document.getElementById('roleSelectBox').style.display = 'block';
+    document.getElementById('customerLoginBox').style.display = 'none';
+    document.getElementById('adminLoginBox').style.display = 'none';
+  }
+
+  function closeLogin() {
+    document.getElementById('loginModal').style.display = 'none';
+  }
+
+  function showCustomerLogin() {
+    document.getElementById('roleSelectBox').style.display = 'none';
+    document.getElementById('customerLoginBox').style.display = 'block';
+  }
+
+  function showAdminLogin() {
+    document.getElementById('roleSelectBox').style.display = 'none';
+    document.getElementById('adminLoginBox').style.display = 'block';
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('loginModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+</script>
+
+    </section>
+
+
+  <footer>
+
+    <p>© 2025 PK Building Material Suppliers. All rights reserved.</p>
+  </footer>
+
+
+
+
+
+</body>
+</html>

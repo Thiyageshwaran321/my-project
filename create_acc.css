@@ -1,0 +1,84 @@
+/* register page */
+body , html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: url("static/back.jpg") no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div {
+  transition: width 2s, height 4s, background-color 3s;
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 30px 40px;
+  border-radius: 15px;
+  width: 300px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+
+.login-box input[type="text"] ,
+.login-box input[type="password"] ,
+.login-box input[type="email"],
+.login-box input[type="mobilenum"] 
+
+{
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(242, 242, 220, 0.2);
+  color: #fff;
+}
+
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ddd;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.options a {
+  color: #d1b961;
+  text-decoration: none;
+}
+
+/* Login button */
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.login-box .register-link {
+  margin-top: 15px;
+  color: #ddd;
+  font-size: 14px;
+}
+.login-box .register-link a {
+  color: #d1b961;
+  text-decoration: none;
+}
+

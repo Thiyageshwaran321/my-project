@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Material Cost Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+  
+ <div class="logo" style="display: flex; align-items: center;  ;">
+    <img src="static/pklogo.png" alt="Logo" style="height: 130px; width: 180px; margin-right: 15px;margin-top:-15px;">
+    <div>
+       
+    </div>
+</div>  
+    <nav>
+      <a href="index.html" class="home-1">HOME</a> 
+      <a href="material.html" class="material">MATERIAL</a>
+      <a href="calculator.html" class="calculator">CALCULATOR</a>
+      <a href="about.html" class="about">ABOUT</a>
+      <a href="#" class="contact">MY ACCOUNT</a>
+      <a onclick="openLogin()" class="login">LOGIN</a>
+   
+   </nav>
+   </header>
+
+     <main>
+    <section class="hero">
+      <div class="modal" id="loginModal">
+    <div class="login-box">
+      <div class="close-btn" onclick="closeLogin()">&times;</div>
+      <h2>Login</h2>
+      <form action="connect.php" method="POST">
+     <input type="username" name="username" placeholder="Username" required />
+          <input type="password" name="password" placeholder="Password" required />
+        
+        </form>
+ 
+        <div class="options">
+          <label><input type="checkbox"> Remember me</label>
+          <a href="#">Forgot Password?</a>
+        </div>
+        <button type="submit">Login</button>
+        <div class="register-link">
+          Don’t have an account? <a href="login.html">SignUp</a>
+        </div>
+       </form>
+    </div>
+  </div>
+
+  <script>
+    function openLogin() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function closeLogin() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+
+    // Close modal if clicked outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+    </section>
+  </main>
+</body>
+</html>

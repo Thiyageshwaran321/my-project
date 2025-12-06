@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PK BUILDERS</title>
+  <link rel="stylesheet" href="material.css">
+</head>
+
+<body>
+
+<header>
+  <div class="logo" style="display:flex;align-items:center;">
+    <img src="static/pklogo.png" style="height:130px;width:180px;margin-right:15px;margin-top:-15px;">
+  </div>
+
+  <nav>
+    <a href="index.html" class="home-1">HOME</a>
+    <a href="material.html" class="material">MATERIAL</a>
+    <a href="calculator.html" class="calculator">CALCULATOR</a>
+    <a href="about.html" class="about">ABOUT</a>
+    <a href="my_account.php" class="contact">MY ACCOUNT</a>
+    <a onclick="openLogin()" class="login">LOGIN</a>
+  </nav>
+</header>
+
+
+<div class="container">
+<div class="cards">
+
+
+<!-- ===================== MSAND ===================== -->
+<div class="card">
+  <img src="static/2m-sand.jpg" class="material-img">
+  <h3>MSand</h3>
+  <p class="price">₹4500 per unit</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+
+    <input type="hidden" name="product_id" value="2">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php" 
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== PSAND ===================== -->
+<div class="card">
+  <img src="static/psand.avif" class="material-img">
+  <h3>PSand</h3>
+  <p class="price">₹9000 per unit</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+   <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="1">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== DUST ===================== -->
+<div class="card">
+  <img src="static/dust.webp" class="material-img">
+  <h3>Dust</h3>
+  <p class="price">₹9000 per unit</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+   <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="4">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== SAND ===================== -->
+<div class="card">
+  <img src="static/sand.jpg" class="material-img">
+  <h3>Sand</h3>
+  <p class="price">₹9000 per unit</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+ <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="5">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== RAMCO CEMENT ===================== -->
+<div class="card">
+  <img src="static/ramco.jpg" class="material-img">
+  <h3>Ramco Cement</h3>
+  <p class="price">₹350 per pack</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+ <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="6">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== CHETTINAD CEMENT ===================== -->
+<div class="card">
+  <img src="static/cement.png" class="material-img">
+  <h3>Chettinad Cement</h3>
+  <p class="price">₹400 per pack</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+ <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="7">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== ULTRATECH CEMENT ===================== -->
+<div class="card">
+  <img src="static/tech.png" class="material-img">
+  <h3>Ultratech Cement</h3>
+  <p class="price">₹450 per pack</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+   <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="8">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== RED BRICK ===================== -->
+<div class="card">
+  <img src="static/redbricks.jpg" class="material-img">
+  <h3>Red Brick</h3>
+  <p class="price">₹10 per piece</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+ <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="9">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== GRAVEL ===================== -->
+<div class="card">
+  <img src="static/gravel.webp" class="material-img">
+  <h3>Gravel</h3>
+  <p class="price">₹5000 per unit</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+   <input type="number" name="quantity" class="unit" required>
+
+    <input type="hidden" name="product_id" value="10">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+<!-- ===================== WASTE SAND ===================== -->
+<div class="card">
+  <img src="static/waste.jpg" class="material-img">
+  <h3>Waste Sand</h3>
+  <p class="price">₹3000 per unit</p>
+
+  <form method="GET" action="select_address.php">
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+
+    <input type="hidden" name="product_id" value="11">
+
+    <div class="btn-group">
+      <button type="submit" class="order-btn">Order Now</button>
+
+      <button formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+    </div>
+  </form>
+</div>
+
+
+</div>
+</div>
+
+</body>
+</html>

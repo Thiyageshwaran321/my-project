@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | PK Building Material Suppliers</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Poppins, sans-serif; }
+
+    body {
+      display: flex;
+      background-color: #f7e9d5;
+      color: #4b3b25;
+      height: 100vh;
+    }
+
+    /* -------------------------------- SIDEBAR -------------------------------- */
+    .sidebar {
+      width: 230px;
+      background-color: #9c7742;
+      color: white;
+      padding: 20px 0;
+      border-right: 3px solid #c9a66b;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 15px 25px;
+      text-decoration: none;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      background-color: #7a5c30;
+    }
+
+    /* -------------------------------- TOP BAR -------------------------------- */
+    .main-content { flex: 1; display: flex; flex-direction: column; }
+    .topbar {
+      background-color: #fff7ec;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #d4b68a;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .logout-btn {
+      padding: 8px 15px;
+      border: none;
+      background: #9c7742;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .logout-btn:hover { background:#7a5c30; }
+
+    /* -------------------------------- CONTENT AREA -------------------------------- */
+    .content {
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .card {
+      background: #fffdf9;
+      border: 1px solid #e0c6a1;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* -------------------------------- TABLE -------------------------------- */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid #e0c6a1; }
+    th { background: #9c7742; color: white; }
+
+    textarea {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-deliver {
+      background: #3e8a3e;
+      padding: 6px 12px;
+      color: white;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-deliver:hover { background:#2f6b2f; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+  </style>
+</head>
+
+<body>
+
+  <!-- -------------------------------- SIDEBAR -------------------------------- -->
+  <div class="sidebar">
+    <h2>ADMIN PANEL</h2>
+
+    <a class="active" onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('orders')">Manage Orders</a>
+    <a onclick="showSection('feedback_admin')">Feedback</a>
+
+  </div>
+
+  <!-- -------------------------------- MAIN CONTENT -------------------------------- -->
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <h3 id="page-title">Dashboard</h3>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ---------------------- DASHBOARD SECTION ---------------------- -->
+      <div id="dashboard" class="section active">
+        <div class="card">
+          <h3 style="color:#9c7742;">Welcome Admin</h3>
+          <p>Use the sidebar to manage orders & customer feedback.</p>
+        </div>
+      </div>
+
+      <!-- ---------------------- MANAGE ORDERS ---------------------- -->
+      <div id="orders" class="section">
+        <div class="card">
+          <h3 style="color:#9c7742;">Manage Orders</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Material</th>
+                <th>Qty</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="orderData">
+              <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ---------------------- FEEDBACK SECTION ---------------------- -->
+      <div id="feedback_admin" class="section">
+        <div class="card">
+          <h3 style="color:#9c7742;">Customer Feedback</h3>
+
+          <table>
+            <tr>
+                <th>User</th>
+                <th>Feedback</th>
+                <th>Date</th>
+                <th>Reply</th>
+            </tr>
+
+           
+                <td>
+                    <form action="reply_feedback.php" method="POST">
+                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                        <textarea name="reply" placeholder="Type reply..." required><?= $row['admin_reply'] ?></textarea>
+                        <button class="btn-deliver" style="margin-top:5px;">Send Reply</button>
+                    </form>
+                </td>
+            </tr>
+            
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+/* ---------------- SWITCH SECTIONS ---------------- */
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove("active"));
+    event.target.classList.add("active");
+
+    document.getElementById("page-title").innerText =
+        sectionId.replace("_admin", "").replace("-", " ").toUpperCase();
+
+    if (sectionId === "orders") loadOrders();
+}
+
+/* ---------------- LOAD ALL ORDERS ---------------- */
+function loadOrders() {
+    fetch("load_orders.php")
+      .then(res => res.text())
+      .then(data => {
+          document.getElementById("orderData").innerHTML = data;
+      });
+}
+
+/* ---------------- UPDATE ORDER STATUS ---------------- */
+function updateStatus(order_id, status) {
+    let f = new FormData();
+    f.append("order_id", order_id);
+    f.append("status", status);
+
+    fetch("admin_update.php", { method: "POST", body: f })
+      .then(res => res.text())
+      .then(data => {
+          if (data.trim() === "success") {
+            alert("Status updated!");
+            loadOrders();
+          } else {
+            alert("Failed to update!");
+          }
+      });
+}
+
+/* ---------------- LOGOUT ---------------- */
+function logout() {
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
