@@ -28,7 +28,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $_SESSION['email'] = $customer['email'];              // correct column
             $_SESSION['mobilenum'] = $customer['mobilenum'];      // correct column
 
-            header("Location: material.html");
+            header("Location: material.php");
             exit;
         } else {
             echo "<script>alert('Wrong Password'); window.location='index.html';</script>";

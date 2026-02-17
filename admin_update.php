@@ -6,17 +6,18 @@ if (!isset($_POST['order_id']) || !isset($_POST['status'])) {
     exit;
 }
 
+
 $order_id = $_POST['order_id'];
 $status = $_POST['status'];
 
 if ($status == "shipped") {
-    $sql = "UPDATE orders SET status='shipped', shipped_time = NOW() WHERE order_id = ?";
+    $sql = "UPDATE orders SET status='Shipped', shipped_time = NOW() WHERE order_id = ?";
 }
 else if ($status == "out_for_delivery") {
-    $sql = "UPDATE orders SET status='out for delivery', out_time = NOW() WHERE order_id = ?";
+    $sql = "UPDATE orders SET status='Out for Delivery', out_time = NOW() WHERE order_id = ?";
 }
 else if ($status == "delivered") {
-    $sql = "UPDATE orders SET status='delivered', delivered_time = NOW() WHERE order_id = ?";
+    $sql = "UPDATE orders SET status='Delivered', delivered_time = NOW() WHERE order_id = ?";
 }
 else {
     echo "error";

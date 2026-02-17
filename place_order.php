@@ -1,100 +1,163 @@
 <?php
 session_start();
-include 'db.php';
+include "db.php";
 
-/* ------------------------------------------------
-   MUST BE LOGGED IN
----------------------------------------------------*/
+/* LOGIN CHECK */
 if (!isset($_SESSION['customer_id'])) {
-    echo "<script>alert('Please login to place an order'); window.location='index.html';</script>";
-    exit;
+    die("Unauthorized");
 }
 
 $customer_id = $_SESSION['customer_id'];
 
-/* ------------------------------------------------
-   VALIDATE REQUIRED FIELDS
----------------------------------------------------*/
+/* POST CHECK */
 if (
-    !isset($_POST['product_id']) ||
-    !isset($_POST['quantity']) ||
-    !isset($_POST['address_id'])
+    !isset(
+        $_POST['product_id'],
+        $_POST['quantity'],
+        $_POST['total_amount'],
+        $_POST['expected_delivery_full']
+    )
 ) {
-    echo "Invalid request. Missing details.";
-    exit;
+    die("Invalid Request");
 }
 
-$product_id = (int) $_POST['product_id'];
-$quantity   = (int) $_POST['quantity'];
-$address_id = (int) $_POST['address_id'];
+$product_id   = (int)$_POST['product_id'];
+$quantity     = (int)$_POST['quantity'];
+$total_amount = (float)$_POST['total_amount'];
 
-// Validate quantity
-if ($quantity <= 0) {
-    echo "Invalid quantity.";
-    exit;
+$expected_full = $_POST['expected_delivery_full'];
+$expected_date = date("Y-m-d", strtotime($expected_full));
+$expected_time = date("H:i:s", strtotime($expected_full));
+
+/* GET DEFAULT ADDRESS */
+$a = $conn->prepare("
+  SELECT * FROM customer_addresses 
+  WHERE customer_id = ? AND is_default = 1
+");
+$a->bind_param("i", $customer_id);
+$a->execute();
+$res = $a->get_result();
+
+/* FALLBACK */
+if ($res->num_rows === 0) {
+    $a = $conn->prepare("
+      SELECT * FROM customer_addresses 
+      WHERE customer_id = ?
+      ORDER BY id ASC
+      LIMIT 1
+    ");
+    $a->bind_param("i", $customer_id);
+    $a->execute();
+    $res = $a->get_result();
+
+    if ($res->num_rows === 0) {
+        die("No address found");
+    }
 }
 
-/* ------------------------------------------------
-   FETCH PRODUCT DETAILS
----------------------------------------------------*/
-$stmt = $conn->prepare("SELECT material_name, price FROM products WHERE product_id = ?");
-$stmt->bind_param("i", $product_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$address = $res->fetch_assoc();
+$address_id = $address['id'];
 
-if ($result->num_rows === 0) {
-    echo "Product not found!";
-    exit;
+/* PRODUCT */
+$p = $conn->prepare("SELECT material_name, price FROM products WHERE product_id = ?");
+$p->bind_param("i", $product_id);
+$p->execute();
+$product = $p->get_result()->fetch_assoc();
+
+if (!$product) {
+    die("Invalid product");
 }
 
-$product = $result->fetch_assoc();
-$material = $product['material_name'];
-$price = $product['price'];
-$total_amount = $price * $quantity;
+$material_name = $product['material_name'];
+$material_cost = $product['price'] * $quantity;
 
-/* ------------------------------------------------
-   VERIFY ADDRESS BELONGS TO THIS USER
----------------------------------------------------*/
-$chk = $conn->prepare("SELECT id FROM customer_addresses WHERE id = ? AND customer_id = ?");
-$chk->bind_param("ii", $address_id, $customer_id);
-$chk->execute();
-$addr_res = $chk->get_result();
-
-if ($addr_res->num_rows === 0) {
-    echo "Invalid address selection!";
-    exit;
+/* SAFETY CHECK */
+if ($material_cost != $total_amount) {
+    $total_amount = $material_cost;
 }
 
-/* ------------------------------------------------
-   INSERT ORDER INTO DATABASE
----------------------------------------------------*/
-$stmt2 = $conn->prepare("
-    INSERT INTO orders 
-        (customer_id, product_id, material_name, quantity, total_amount, status, address_id, placed_time) 
-    VALUES 
-        (?, ?, ?, ?, ?, 'pending', ?, NOW())
+/* ORDER DATA */
+$payment_method = "COD";
+$status = "pending";
+$order_status = "Order Placed";
+$est_days = 4;
+
+$check = $conn->prepare("
+  SELECT stock FROM products WHERE product_id = ?
+");
+$check->bind_param("i", $product_id);
+$check->execute();
+$res = $check->get_result()->fetch_assoc();
+
+if ($res['stock'] < $quantity) {
+    echo "<script>
+      alert('Stock not available');
+      window.location='material.php';
+    </script>";
+    exit();
+}
+
+$updateStock = $conn->prepare("
+  UPDATE products 
+  SET stock = stock - ? 
+  WHERE product_id = ?
+");
+$updateStock->bind_param("ii", $quantity, $product_id);
+$updateStock->execute();
+
+/* INSERT ORDER (FIXED) */
+$ins = $conn->prepare("
+INSERT INTO orders
+(
+  customer_id, product_id, quantity,
+  material_name, material_cost,
+  total_amount,
+  payment_method, address_id,
+  status, order_status, est_days,
+  expected_delivery_date, expected_delivery_time
+)
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
-$stmt2->bind_param(
-    "iisidi",
-    $customer_id,
-    $product_id,
-    $material,
-    $quantity,
-    $total_amount,
-    $address_id
+$ins->bind_param(
+  "iiisidssissss",
+  $customer_id,
+  $product_id,
+  $quantity,
+  $material_name,
+  $material_cost,
+  $total_amount,
+  $payment_method,
+  $address_id,
+  $status,
+  $order_status,
+  $est_days,
+  $expected_date,
+  $expected_time
 );
 
-/* ------------------------------------------------
-   EXECUTE AND REDIRECT
----------------------------------------------------*/
-if ($stmt2->execute()) {
+if ($ins->execute()) {
     echo "<script>
-            alert('Order placed successfully!');
-            window.location='my_account.php';
-          </script>";
+      alert('Order placed successfully (Cash on Delivery)');
+      window.location='my_account.php';
+    </script>";
 } else {
-    echo "Order failed: " . $stmt2->error;
+    die('Order failed. Please try again.');
 }
+// After reducing stock, fetch new stock + limit
+$p = $conn->prepare("SELECT material_name, stock, low_stock_limit, unit_type FROM products WHERE product_id = ?");
+$p->bind_param("i", $product_id);
+$p->execute();
+$r = $p->get_result()->fetch_assoc();
 
-?>
+if ($r) {
+    $productName = $r['material_name'];
+    $newStock    = (int)$r['stock'];
+    $limit       = (int)$r['low_stock_limit'];
+    $unitType    = $r['unit_type'];
+
+    // If stock reached or went below reorder level → SEND MAIL
+    if ($newStock <= $limit) {
+        sendLowStockMail($productName, $newStock, $limit, $unitType);
+    }
+}

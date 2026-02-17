@@ -2,147 +2,147 @@
 session_start();
 include "db.php";
 
+/* LOGIN CHECK */
 if (!isset($_SESSION['customer_id'])) {
-    header("Location: index.html");
+    header("Location: index.php");
     exit();
 }
 
 $customer_id = $_SESSION['customer_id'];
 
-if (!isset($_GET['product_id']) || !isset($_GET['quantity'])) {
-    echo "Invalid request";
-    exit;
+/* PRODUCT CHECK */
+if (!isset($_GET['product_id'], $_GET['quantity'])) {
+    die("Invalid Request");
 }
 
-$product_id = (int) $_GET['product_id'];
-$quantity   = (int) $_GET['quantity'];
+$product_id = (int)$_GET['product_id'];
+$quantity   = (int)$_GET['quantity'];
 
-// Fetch saved addresses
-$stmt = $conn->prepare("SELECT * FROM customer_addresses WHERE customer_id = ?");
-$stmt->bind_param("i", $customer_id);
-$stmt->execute();
-$addresses = $stmt->get_result();
+/* PRODUCT DETAILS */
+$p = $conn->prepare(
+  "SELECT material_name, price FROM products WHERE product_id=?"
+);
+$p->bind_param("i", $product_id);
+$p->execute();
+$product = $p->get_result()->fetch_assoc();
+
+if (!$product) {
+    die("Product not found");
+}
+
+$material_name = $product['material_name'];
+$unit_price    = (float)$product['price'];
+$material_cost = $unit_price * $quantity;
+
+/* ADDRESS: GET DEFAULT FIRST */
+$a = $conn->prepare("
+  SELECT * FROM customer_addresses 
+  WHERE customer_id=? AND is_default=1
+");
+$a->bind_param("i", $customer_id);
+$a->execute();
+$res = $a->get_result();
+
+/* FALLBACK: ANY ADDRESS */
+if ($res->num_rows === 0) {
+    $a = $conn->prepare("
+      SELECT * FROM customer_addresses 
+      WHERE customer_id=? 
+      ORDER BY id ASC 
+      LIMIT 1
+    ");
+    $a->bind_param("i", $customer_id);
+    $a->execute();
+    $res = $a->get_result();
+
+    if ($res->num_rows === 0) {
+        die("<h3>Please add an address in My Account before ordering.</h3>");
+    }
+}
+
+$address = $res->fetch_assoc();
+
+/* FINAL TOTAL (NO DELIVERY CHARGE) */
+$total_amount  = $material_cost;
+$delivery_days = 4;
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
 <title>Select Delivery Address</title>
 
 <style>
-body {
-    font-family: 'Segoe UI';
-    background: #f3e9d7;
-    margin: 0;
-    padding: 0;
+body { font-family:Segoe UI; background:#f3e9d7; }
+.container { width:80%; margin:30px auto; }
+.card {
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
 }
-
-/* Wrapper */
-.container {
-    width: 60%;
-    margin: 50px auto;
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+.summary {
+  background:#faf4e4;
+  border-left:6px solid #8a6b36;
+  padding:20px;
+  border-radius:12px;
 }
-
-/* Heading */
-h2 {
-    color: #8a6b36;
-    margin-bottom: 20px;
-    font-size: 28px;
-}
-
-/* Address box */
-.address-box {
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    transition: 0.3s;
-}
-
-.address-box:hover {
-    border-color: #8a6b36;
-    background: #faf4e4;
-}
-
-/* Radio button spacing */
-.address-box input[type="radio"] {
-    transform: scale(1.3);
-    margin-right: 10px;
-}
-
-/* Submit button */
 .btn {
-    background: #8a6b36;
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 17px;
-    font-weight: bold;
-}
-
-.btn:hover {
-    background: #6f5428;
-}
-
-/* No address text */
-.no-address {
-    color: red;
-    font-size: 18px;
-    font-weight: bold;
+  background:#8a6b36;
+  color:#fff;
+  padding:12px 25px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
 }
 </style>
-
 </head>
+
 <body>
 
 <div class="container">
 
 <h2>Select Delivery Address</h2>
 
-<form action="place_order.php" method="POST">
-
-    <!-- Hidden values -->
-    <input type="hidden" name="product_id" value="<?= $product_id ?>">
-    <input type="hidden" name="quantity" value="<?= $quantity ?>">
-
-    <?php if ($addresses->num_rows > 0): ?>
-
-        <?php while ($a = $addresses->fetch_assoc()): ?>
-            <label>
-                <div class="address-box">
-                    <input type="radio" name="address_id" value="<?= $a['id'] ?>" required>
-
-                    <b><?= $a['full_name'] ?></b> (<?= $a['phone'] ?>) <br>
-                    <?= $a['address_line'] ?> <br>
-                    <?= $a['city'] ?> - <?= $a['pincode'] ?> <br>
-                    <?= $a['state'] ?>
-                </div>
-            </label>
-        <?php endwhile; ?>
-
-    <?php else: ?>
-        <p class="no-address">No saved addresses found!</p>
-        <p>Please add an address in My Account → Saved Addresses</p>
-    <?php endif; ?>
-<div class="address-box">
-    <label>
-        <input type="radio" name="payment_method" value="COD" checked>
-        <b>Cash On Delivery</b> (Only available)
-    </label>
+<div class="card">
+  <b><?= htmlspecialchars($address['full_name']) ?></b>
+  (<?= htmlspecialchars($address['phone']) ?>)<br>
+  <?= htmlspecialchars($address['address_line']) ?>,
+  <?= htmlspecialchars($address['city']) ?> –
+  <?= htmlspecialchars($address['pincode']) ?><br>
+  <?= htmlspecialchars($address['state']) ?>
+  <br><br>
+  <input type="radio" checked> <b>Cash On Delivery</b>
 </div>
-    <br>
-    <button type="submit" class="btn">Confirm & Place Order</button>
-    
 
+<div class="summary">
+  <h3>Order Summary</h3>
+
+  <p><b>Material:</b> <?= htmlspecialchars($material_name) ?></p>
+  <p><b>Unit Price:</b> ₹<?= number_format($unit_price) ?></p>
+  <p><b>Quantity:</b> <?= $quantity ?></p>
+  <p><b>Material Cost:</b> ₹<?= number_format($material_cost) ?></p>
+
+  <hr>
+
+  <p><b>Expected Delivery:</b> <?= $delivery_days ?> days</p>
+  <p style="font-size:18px;">
+    <b>Total Amount:</b> ₹<?= number_format($total_amount) ?>
+  </p>
+</div>
+
+<br>
+
+<form action="place_order.php" method="POST">
+  <input type="hidden" name="product_id" value="<?= $product_id ?>">
+  <input type="hidden" name="quantity" value="<?= $quantity ?>">
+  <input type="hidden" name="total_amount" value="<?= $total_amount ?>">
+  <input type="hidden" name="expected_delivery_full" value="<?= date('Y-m-d H:i:s') ?>">
+
+  <button class="btn">Confirm & Place Order</button>
 </form>
 
 </div>
-
 </body>
 </html>

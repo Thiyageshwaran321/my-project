@@ -1,188 +1,183 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 session_start();
-include 'db.php';
-
-if (isset($_POST['login'])) {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    $stmt = $conn->prepare("SELECT * FROM customers WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $customer = $result->fetch_assoc();
-
-    if ($customer && password_verify($password, $customer['password'])) {
-        $_SESSION['customer_id'] = $customer['id'];
-        $_SESSION['customer_name'] = $customer['name'];
-        header("Location: place_order.php");
-        exit();
-    } else {
-        echo "<p style='color:red;'>Invalid email or password.</p>";
-    }
-}
+include "db.php";
 ?>
-
-<!-- HTML login form -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PK Building Material Suppliers</title>
+
+  <!-- Main CSS -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    .password-box{
+      position: relative;
+      width: 100%;
+    }
+    .password-box input{
+      width: 100%;
+      padding: 10px 40px 10px 10px;
+    }
+    .password-box i{
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #555;
+    }
+  </style>
 </head>
+
 <body style="background-image: url('back.jpg'); background-size: cover;">
 
-  <header>
-  
- <div class="logo" style="display: flex; align-items: center;  ;">
-    <img src="static/pklogo.png" alt="Logo" style="height: 130px; width: 180px; margin-right: 15px;margin-top:-15px;">
-    <div>
-       
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="logo" style="display:flex; align-items:center;">
+    <img src="static/pklogo.png"
+         style="height:130px;width:180px;margin-top:-15px;margin-right:15px;">
+  </div>
+
+  <!-- ================= NAVBAR ================= -->
+   <nav>
+    <a href="index.php">HOME</a>
+    <a href="material.php">MATERIAL</a>
+    <a href="calculator.php">CALCULATOR</a>
+    <a href="about.php">ABOUT</a>
+    <?php if(isset($_SESSION['customer_id'])): ?>
+      <a href="my_account.php">MY ACCOUNT</a>
+      <a href="logout.php" style="color:#d1b961;">LOGOUT</a>
+    <?php else: ?>
+      <a href="#" onclick="openLogin()">LOGIN</a>
+    <?php endif; ?>
+  </nav>
+</header>
+
+<!-- ================= HERO SECTION ================= -->
+<main>
+<section class="hero">
+
+  <div class="hero-text">
+    <h2>Your Trusted Construction Material Partner</h2>
+    <h1>Get High Quality Construction Materials</h1>
+  </div>
+
+  <div class="hero-image">
+    <img src="static/pkneed.png" alt="Construction Illustration" />
+  </div>
+
+  <!-- ================= LOGIN MODAL ================= -->
+  <div class="modal" id="loginModal">
+
+    <!-- Role Selection -->
+    <div class="login-box" id="roleSelectBox">
+      <div class="close-btn" onclick="closeLogin()">&times;</div>
+      <h2>Login</h2>
+      <p style="text-align:center;">Select Your Role</p>
+      <button onclick="showCustomerLogin()">Customer</button>
+      <button onclick="showAdminLogin()">Admin</button>
     </div>
-</div>
 
-  
-    <nav>
-      <a href="index.html" class="home-1">HOME</a> 
-      <a href="material.html" class="material">MATERIAL</a>
-      <a href="calculator.html" class="calculator">CALCULATOR</a>
-      <a href="about.html" class="about">ABOUT</a>
-      <a href="my_account.html" class="contact">MY ACCOUNT</a>
-     
-      <a onclick="openLogin()" class="login">LOGIN</a>
-   
-   </nav>
-   </header>
+    <!-- CUSTOMER LOGIN -->
+    <div class="login-box" id="customerLoginBox" style="display:none;">
+      <div class="close-btn" onclick="closeLogin()">&times;</div>
+      <h2>Customer Login</h2>
 
-  <main>
-    <section class="hero">
-      <div class="hero-text">
-        <h2>Your Trusted Construction Material Partner</h2>
-        <h1>Get high quality construction materials</h1>
-       
-      </div>
-      <div class="hero-image">
-        <img src="static/pkneed.png" alt="Construction Illustration" />
-      </div>
-     <!-- Login Modal -->
-<div class="modal" id="loginModal">
-  <div class="login-box" id="roleSelectBox">
-    <div class="close-btn" onclick="closeLogin()">&times;</div>
-    <h2>Login</h2>
-    <p style="text-align:center;">Select your role</p>
-    <button onclick="showCustomerLogin()">Customer</button>
-    <button onclick="showAdminLogin()">Admin</button>
-  </div>
+      <form action="customer_connect.php" method="POST">
+        <input type="text" name="username" placeholder="Username" required />
 
-  <!-- Customer Login -->
-  <div class="login-box" id="customerLoginBox" style="display:none;">
-    <div class="close-btn" onclick="closeLogin()">&times;</div>
-    <h2>Customer Login</h2>
-    <form action="customer_connect.php" method="POST">
-    
-      <div class="options">
-        <label><input type="checkbox"> Remember me</label>
-        <a href="#">Forgot Password?</a>
-      </div>
-    <form action="login.php" method="POST">
-   <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password" required />
-  <button type="submit" name="login">Login</button>
-</form>
+        <div class="password-box">
+          <input type="password" name="password" id="customerPassword" placeholder="Password" required>
+          <i class="fa-solid fa-eye" onclick="togglePassword('customerPassword', this)"></i>
+        </div>
 
+        <div class="options">
+          <label><input type="checkbox"> Remember me</label>
+          <a href="#">Forgot Password?</a>
+        </div>
 
-     
+        <button type="submit" name="login">Login</button>
+      </form>
+
       <div class="register-link">
-        Don’t have an account? <a href="login.html">SignUp</a>
+        Don’t have an account? <a href="login.html">Sign Up</a>
       </div>
-    </form>
+    </div>
+
+    <!-- ADMIN LOGIN -->
+    <div class="login-box" id="adminLoginBox" style="display:none;">
+      <div class="close-btn" onclick="closeLogin()">&times;</div>
+      <h2>Admin Login</h2>
+
+      <form action="admin_connect.php" method="POST">
+        <input type="text" name="adminid" placeholder="Admin ID" required />
+
+        <div class="password-box">
+          <input type="password" name="password" id="adminPassword" placeholder="Password" required>
+          <i class="fa-solid fa-eye" onclick="togglePassword('adminPassword', this)"></i>
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
   </div>
-  
+</section>
+</main>
 
-<!-- Admin Login -->
-<div class="login-box" id="adminLoginBox" style="display:none;">
-  <div class="close-btn" onclick="closeLogin()">&times;</div>
-  <h2>Admin Login</h2>
-  <form action="admin_connect.php" method="POST">
-    <input type="text" name="adminid" placeholder="Admin ID" required />
-    <input type="password" name="password" placeholder="Password" required />
-    <button type="submit">Login</button>
-  </form>
-</div>
+<!-- ================= FOOTER ================= -->
+<footer>
+  <p>© 2025 PK Building Material Suppliers. All rights reserved.</p>
+</footer>
 
-
-
-
-
-
-
+<!-- ================= SCRIPTS ================= -->
 <script>
-  function adminLogin() {
-    const adminID = document.getElementById("adminid").value.trim();
-    const password = document.getElementById("adminpass").value.trim();
-
-    // You can change these credentials later
-    const validAdminID = "admin";
-    const validPassword = "12345";
-
-    if (adminID === validAdminID && password === validPassword) {
-      alert("Login successful! Redirecting to Admin Dashboard...");
-      window.location.href = "admin_dashboard.html"; // your dashboard page
-      return false; // stop normal form submission
-    } else {
-      alert("Invalid Admin ID or Password");
-      return false;
-    }
+function togglePassword(id, icon){
+  const input = document.getElementById(id);
+  if(input.type === "password"){
+    input.type = "text";
+    icon.classList.replace("fa-eye","fa-eye-slash");
+  }else{
+    input.type = "password";
+    icon.classList.replace("fa-eye-slash","fa-eye");
   }
+}
+
+function openLogin() {
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('roleSelectBox').style.display = 'block';
+  document.getElementById('customerLoginBox').style.display = 'none';
+  document.getElementById('adminLoginBox').style.display = 'none';
+}
+
+function closeLogin() {
+  document.getElementById('loginModal').style.display = 'none';
+}
+
+function showCustomerLogin() {
+  document.getElementById('roleSelectBox').style.display = 'none';
+  document.getElementById('customerLoginBox').style.display = 'block';
+}
+
+function showAdminLogin() {
+  document.getElementById('roleSelectBox').style.display = 'none';
+  document.getElementById('adminLoginBox').style.display = 'block';
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById('loginModal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+}
 </script>
-
-
-<script>
-  function openLogin() {
-    document.getElementById('loginModal').style.display = 'flex';
-    document.getElementById('roleSelectBox').style.display = 'block';
-    document.getElementById('customerLoginBox').style.display = 'none';
-    document.getElementById('adminLoginBox').style.display = 'none';
-  }
-
-  function closeLogin() {
-    document.getElementById('loginModal').style.display = 'none';
-  }
-
-  function showCustomerLogin() {
-    document.getElementById('roleSelectBox').style.display = 'none';
-    document.getElementById('customerLoginBox').style.display = 'block';
-  }
-
-  function showAdminLogin() {
-    document.getElementById('roleSelectBox').style.display = 'none';
-    document.getElementById('adminLoginBox').style.display = 'block';
-  }
-
-  window.onclick = function(event) {
-    const modal = document.getElementById('loginModal');
-    if (event.target === modal) {
-      modal.style.display = 'none';
-    }
-  }
-</script>
-
-    </section>
-  </main>
-
-  <footer>
-
-    <p>© 2025 PK Building Material Suppliers. All rights reserved.</p>
-  </footer>
-
-
-
-
 
 </body>
 </html>

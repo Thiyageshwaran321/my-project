@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,29 +38,27 @@
 <header>
   <div class="logo" style="display:flex; align-items:center;">
     <img src="static/pklogo.png"
-         alt="Logo"
          style="height:130px;width:180px;margin-right:15px;margin-top:-15px;">
   </div>
 
   <nav>
-    <a href="index.html" class="home-1">HOME</a>
-    <a href="material.html" class="material">MATERIAL</a>
-    <a href="calculator.html" class="calculator">CALCULATOR</a>
-    <a href="about.html" class="about">ABOUT</a>
-    <a href="my_account.html" class="contact">MY ACCOUNT</a>
-    <a onclick="openLogin()" class="login">LOGIN</a>
+    <a href="index.php" class="home-1">HOME</a>
+    <a href="material.php" class="material">MATERIAL</a>
+    <a href="calculator.php" class="calculator">CALCULATOR</a>
+    <a href="about.php" class="about">ABOUT</a>
+
+    <?php if(isset($_SESSION['customer_id'])): ?>
+      <a href="my_account.php" class="contact">MY ACCOUNT</a>
+      <a href="logout.php" class="login">LOGOUT</a>
+    <?php else: ?>
+      <a onclick="openLogin()" class="login">LOGIN</a>
+    <?php endif; ?>
   </nav>
 </header>
-<div class="construction-icons"></div>
-<div class="construction-icons"></div>
-<div class="construction-icons"></div>
-<div class="construction-icons"></div>
+
 <!-- ================= LOGIN MODAL ================= -->
 
 <div class="modal" id="loginModal">
-     
-
-
 
   <!-- ROLE SELECT -->
   <div class="login-box" id="roleSelectBox">
@@ -67,32 +69,23 @@
     <button onclick="showAdminLogin()">Admin</button>
   </div>
 
-   <!-- CUSTOMER LOGIN -->
+  <!-- CUSTOMER LOGIN -->
   <div class="login-box" id="customerLoginBox" style="display:none;">
     <div class="close-btn" onclick="closeLogin()">&times;</div>
     <h2>Customer Login</h2>
 
     <form action="customer_connect.php" method="POST">
-      <input type="username" name="username" placeholder="Username" required />
+      <input type="text" name="username" placeholder="Username" required>
 
       <div class="password-box">
         <input type="password" name="password" id="customerPassword" placeholder="Password" required>
-        <i class="fa-solid fa-eye" onclick="togglePassword('customerPassword', this)"></i>
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('customerPassword', this)"></i>
       </div>
 
-      <div class="options">
-        <label><input type="checkbox"> Remember me</label>
-        <a href="#">Forgot Password?</a>
-      </div>
-
-      <button type="submit" name="login">Login</button>
+      <button type="submit">Login</button>
     </form>
-
-    <div class="register-link">
-      Don’t have an account? <a href="login.html">SignUp</a>
-    </div>
   </div>
-
 
   <!-- ADMIN LOGIN -->
   <div class="login-box" id="adminLoginBox" style="display:none;">
@@ -100,17 +93,17 @@
     <h2>Admin Login</h2>
 
     <form action="admin_connect.php" method="POST">
-      <input type="text" name="adminid" placeholder="Admin ID" required />
+      <input type="text" name="adminid" placeholder="Admin ID" required>
 
       <div class="password-box">
         <input type="password" name="password" id="adminPassword" placeholder="Password" required>
-        <i class="fa-solid fa-eye" onclick="togglePassword('adminPassword', this)"></i>
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('adminPassword', this)"></i>
       </div>
 
       <button type="submit">Login</button>
     </form>
   </div>
-</div>
 
 </div>
 
@@ -191,6 +184,7 @@ function calculateCost() {
     <strong>Total Cost: ₹${totalCost}</strong>
   `;
 }
+
 </script>
 
 </body>

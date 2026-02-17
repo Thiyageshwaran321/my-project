@@ -3,36 +3,41 @@ session_start();
 include "db.php";
 
 if (!isset($_SESSION['customer_id'])) {
-    echo "<script>alert('Please login first'); window.location='index.html';</script>";
+    echo "<script>alert('Please login to add items to cart'); window.location='index.html';</script>";
     exit();
 }
 
-$customer_id = $_SESSION['customer_id'];
-
-if (!isset($_POST['product_id']) || !isset($_POST['unit'])) {
+if (!isset($_POST['product_id']) || !isset($_POST['quantity'])) {
     echo "Invalid request";
     exit();
 }
 
-$product_id = (int) $_POST['product_id'];
-$unit = (int) $_POST['unit'];
+$product_id = $_POST['product_id'];
+$quantity = $_POST['quantity'];
+$customer_id = $_SESSION['customer_id'];
 
-$stmt = $conn->prepare("SELECT material_name, price FROM products WHERE product_id=?");
+// Get product details
+$stmt = $conn->prepare("SELECT material_name, price FROM products WHERE product_id = ?");
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
-$res = $stmt->get_result();
+$result = $stmt->get_result();
+$product = $result->fetch_assoc();
 
-if ($res->num_rows == 0) {
-    die("Product not found!");
+if (!$product) {
+    echo "Product not found!";
+    exit();
 }
 
-$row = $res->fetch_assoc();
-$material = $row['material_name'];
-$price = $row['price'];
+$material_name = $product['material_name'];
+$price = $product['price'];
 
-$stmt2 = $conn->prepare("INSERT INTO cart (customer_id, product_id, material_name, price, unit) VALUES (?, ?, ?, ?, ?)");
-$stmt2->bind_param("iisii", $customer_id, $product_id, $material, $price, $unit);
-$stmt2->execute();
+// Insert into cart
+$insert = $conn->prepare("INSERT INTO cart (customer_id, product_id, material_name, unit, price) VALUES (?, ?, ?, ?, ?)");
+$insert->bind_param("iisid", $customer_id, $product_id, $material_name, $quantity, $price);
 
-echo "<script>alert('Item added to cart'); window.location='material.html';</script>";
+if ($insert->execute()) {
+    echo "<script>alert('Added to cart successfully!'); window.location='my_account.php';</script>";
+} else {
+    echo "Failed to add to cart";
+}
 ?>

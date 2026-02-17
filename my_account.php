@@ -2,29 +2,28 @@
 session_start();
 include "db.php";
 
-// Redirect if user not logged in
 if (!isset($_SESSION['customer_id'])) {
-    header("Location: index.html");
+    header("Location: index.php");
     exit();
 }
 
 $customer_id = $_SESSION['customer_id'];
 
-/* ---------------- FETCH CUSTOMER DETAILS ---------------- */
+/* CUSTOMER DETAILS */
 $stmt = $conn->prepare("SELECT username, email, mobilenum FROM customers WHERE customer_id = ?");
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();
 $customer = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-/* ---------------- FETCH ORDERS ---------------- */
+/* ORDERS */
 $order_q = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_id DESC");
 $order_q->bind_param("i", $customer_id);
 $order_q->execute();
 $orders = $order_q->get_result();
 $order_q->close();
 
-/* ---------------- FETCH CART ---------------- */
+/* CART */
 $cart_q = $conn->prepare("SELECT * FROM cart WHERE customer_id = ?");
 $cart_q->bind_param("i", $customer_id);
 $cart_q->execute();
@@ -37,103 +36,18 @@ $cart_q->close();
 <meta charset="UTF-8">
 <title>My Account</title>
 
-<style>
-/* ===================== GENERAL STYLES ===================== */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f3e9d7;
-  color: #333;
-}
-
-header {
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-nav a {
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: bold;
-  color: #000;
-}
-nav a:hover { color: #d1b961; }
-
-/* ===================== ACCOUNT LAYOUT ===================== */
-.account-container {
-  display: flex;
-  width: 95%;
-  margin: 20px auto;
-}
-
-.sidebar {
-  width: 250px;
-  padding: 20px;
-}
-
-.sidebar ul li {
-  padding: 12px;
-  margin: 8px 0;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.sidebar ul li.active,
-.sidebar ul li:hover { background: #f7e49f; }
-
-/* MAIN CONTENT AREA */
-.main-content {
-  flex: 1;
-  padding: 30px;
-}
-
-.section { display: none; }
-.section.active { display: block; }
-
-/* BOX STYLES */
-.box {
-  background: #f1f3f6;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-/* FULL WIDTH CART BOX */
-.cart-item {
-  width: 100%;
-  background: #fff;
-  padding: 18px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  box-shadow: 0px 2px 10px rgba(0,0,0,0.08);
-}
-
-.track-btn {
-  background: #d6a84c;
-  padding: 5px 10px;
-  color: black;
-  border-radius: 5px;
-  text-decoration: none;
-  font-weight: bold;
-}
-.track-btn:hover { background: #b68a2f; }
-</style>
 
 </head>
+
 <body>
-
+  <link rel="stylesheet" href="my_account.css">
 <header>
-  <div class="logo">
-    <img src="static/pklogo.png" style="height:120px;">
-  </div>
-
+  <img src="static/pklogo.png" style="height:120px;">
   <nav>
-    <a href="index.html">HOME</a>
-    <a href="material.html">MATERIAL</a>
-    <a href="calculator.html">CALCULATOR</a>
-    <a href="about.html">ABOUT</a>
+    <a href="index.php">HOME</a>
+    <a href="material.php">MATERIAL</a>
+    <a href="calculator.php">CALCULATOR</a>
+    <a href="about.php">ABOUT</a>
     <a href="my_account.php">MY ACCOUNT</a>
     <a href="logout.php" style="color:#d1b961;">LOGOUT</a>
   </nav>
@@ -141,224 +55,326 @@ nav a:hover { color: #d1b961; }
 
 <div class="account-container">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <h2>My Account</h2>
-    <ul>
-      <li class="active" onclick="showSection('profile')">👤 Profile</li>
-      <li onclick="showSection('orders')">📦 My Orders</li>
-      <li onclick="showSection('addresses')">🏠 Saved Addresses</li>
-      <li onclick="showSection('cart')">🛒 Cart</li>
-      <li onclick="showSection('feedback')">💬 Feedback</li>
-      <li onclick="window.location.href='logout.php'">🚪 Logout</li>
-    </ul>
-  </div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>My Account</h2>
+  <ul>
+    <li class="active" onclick="showSection('profile',this)">👤 Profile</li>
+    <li onclick="showSection('orders',this)">📦 My Orders</li>
+    <li onclick="showSection('addresses',this)">🏠 Saved Addresses</li>
+    <li onclick="showSection('cart',this)">🛒 Cart</li>
+    <li onclick="showSection('feedback',this)">💬 Feedback</li>
+    <li onclick="window.location='logout.php'">🚪 Logout</li>
+  </ul>
+</div>
 
-  <!-- MAIN CONTENT WRAPPER -->
-  <div class="main-content">
+<!-- MAIN CONTENT -->
+<div class="main-content">
 
-    <!-- PROFILE SECTION -->
-    <div id="profile" class="section active">
-      <h3>Profile Information</h3>
-      <div class="box">
-        <p><strong>Name:</strong> <?= $customer['username']; ?></p>
-        <p><strong>Email:</strong> <?= $customer['email']; ?></p>
-        <p><strong>Phone:</strong> <?= $customer['mobilenum']; ?></p>
-      </div>
-    </div>
+<!-- PROFILE -->
+<div id="profile" class="section active">
+<h3>Profile</h3>
+<div class="box">
+<p><b>Name:</b> <?= htmlspecialchars($customer['username']) ?></p>
+<p><b>Email:</b> <?= htmlspecialchars($customer['email']) ?></p>
+<p><b>Phone:</b> <?= htmlspecialchars($customer['mobilenum']) ?></p>
 
-    <!-- ORDERS SECTION -->
-    <div id="orders" class="section">
-      <h3>My Orders</h3>
-      <div class="box">
+<button onclick="openUpdateProfile()"
+style="background:#8a6b36;color:#fff;padding:10px 18px;border:none;border-radius:6px;">
+Update Details
+</button>
+</div>
+</div>
 
-        <?php if ($orders->num_rows > 0): ?>
-          <?php while ($o = $orders->fetch_assoc()): ?>
-            <p>
-              📦 <?= $o['material_name']; ?> — 
-              <?= $o['quantity']; ?> units — 
-              ₹<?= $o['total_amount']; ?> — 
-              <b><?= $o['status']; ?></b>
+<!-- UPDATE MODAL -->
+<div id="updateProfileModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.5);z-index:2000;">
+<div style="background:#fff;width:400px;margin:130px auto;padding:25px;border-radius:10px;">
+<h3>Update Profile</h3>
+<form action="update_profile_final.php" method="POST">
+<input type="text" name="username" value="<?= $customer['username'] ?>" required><br><br>
+<input type="email" name="email" value="<?= $customer['email'] ?>" required><br><br>
+<input type="text" name="mobilenum" value="<?= $customer['mobilenum'] ?>" required><br><br>
+<button style="background:#28a745;color:#fff;padding:8px 15px;border:none;">Confirm</button>
+<button type="button" onclick="closeUpdateProfile()">Cancel</button>
+</form>
+</div>
+</div>
 
-              <a href="track_order.php?order_id=<?= $o['order_id']; ?>" class="track-btn">Track Order</a>
-            </p>
-          <?php endwhile; ?>
-        <?php else: ?>
-          <p>No orders yet.</p>
-        <?php endif; ?>
 
-      </div>
-    </div>
 
-    <!-- SAVED ADDRESSES -->
-    <div id="addresses" class="section">
-      <h3>Saved Addresses</h3>
-      
-      <div class="box">
-        <h4>Add New Address</h4>
-        <form action="save_address.php" method="POST">
-          <input type="text" name="full_name" placeholder="Full Name" required><br><br>
-          <input type="text" name="phone" placeholder="Phone Number" required><br><br>
-          <input type="text" name="address_line" placeholder="Address Line" required><br><br>
-          <input type="text" name="city" placeholder="City" required><br><br>
-          <input type="text" name="pincode" placeholder="Pincode" required><br><br>
-          <input type="text" name="state" placeholder="State" required><br><br>
 
-          <button type="submit" style="padding:10px 20px; background:#9c7742; color:white; border:none; border-radius:5px;">
-            Save Address
+<!-- ORDERS -->
+<div id="orders" class="section">
+  <h3>My Orders</h3>
+  <?php if($orders->num_rows): while($o=$orders->fetch_assoc()): ?>
+    <div class="order-item">
+      <?= $o['material_name'] ?> |
+      <?= $o['quantity'] ?> units |
+      ₹<?= $o['total_amount'] ?> |
+      <b><?= $o['status'] ?></b>
+
+      <a class="track-btn"
+         href="track_order.php?order_id=<?= $o['order_id'] ?>">
+        Track
+      </a>
+
+      <?php if (!empty($o['expected_delivery_date'])): ?>
+        <div class="expected-box">
+          <b>Expected</b>
+          <?= date("d.m.Y", strtotime($o['expected_delivery_date'])) ?>
+          <?php if (!empty($o['expected_delivery_time'])): ?>
+            at <?= date("g.i A", strtotime($o['expected_delivery_time'])) ?>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- 🔴 CANCEL ORDER BUTTON -->
+      <?php
+        $canCancel = in_array(
+          strtolower($o['status']),
+          ['pending', 'order placed']
+        );
+      ?>
+
+      <?php if ($canCancel): ?>
+        <form action="cancel_order.php"
+              method="POST"
+              onsubmit="return confirm('Are you sure you want to cancel this order?');"
+              style="margin-top:10px;">
+
+          <input type="hidden"
+                 name="order_id"
+                 value="<?= $o['order_id'] ?>">
+
+          <button type="submit"
+                  style="
+                    background:#dc3545;
+                    color:white;
+                    padding:6px 14px;
+                    border:none;
+                    border-radius:5px;
+                    cursor:pointer;">
+            Cancel Order
           </button>
         </form>
-
-        <hr><br>
-        <h4>Your Saved Addresses</h4>
-
-        <?php
-        $addr_q = $conn->prepare("SELECT * FROM customer_addresses WHERE customer_id = ?");
-        $addr_q->bind_param("i", $customer_id);
-        $addr_q->execute();
-        $list = $addr_q->get_result();
-
-        if ($list->num_rows > 0):
-          while ($a = $list->fetch_assoc()):
-        ?>
-
-        <div style="background:#fff; padding:15px; border-radius:5px; margin-bottom:10px;">
-          <b><?= $a['full_name']; ?></b> (<?= $a['phone']; ?>)<br>
-          <?= $a['address_line']; ?><br>
-          <?= $a['city']; ?> - <?= $a['pincode']; ?><br>
-          <?= $a['state']; ?><br><br>
-
-          <a href="delete_address.php?id=<?= $a['id']; ?>" style="color:red;">Delete</a>
-        </div>
-
-        <?php endwhile; else: ?>
-          <p>No addresses saved.</p>
-        <?php endif; ?>
-
-      </div>
-    </div>
-
-    <!-- CART SECTION (FULL WIDTH) -->
-    <div id="cart" class="section">
-      <h3>My Cart</h3>
-
-      <?php if ($cart_items->num_rows > 0): ?>
-        <?php while ($c = $cart_items->fetch_assoc()): ?>
-
-        <div class="cart-item">
-          
-          <div>
-            <p><b>🛒 <?= $c['material_name']; ?></b></p>
-            <p>Price: ₹<?= $c['price']; ?></p>
-
-            <form action="update_cart.php" method="POST">
-              <input type="hidden" name="cart_id" value="<?= $c['id']; ?>">
-              Qty: <input type="number" name="unit" value="<?= $c['unit']; ?>" min="1" style="width:60px;">
-              <button style="background:#9c7742; color:white; padding:5px 12px; border:none;">Update</button>
-            </form>
-          </div>
-
-          <div>
-            <a href="remove_cart.php?id=<?= $c['id']; ?>" style="color:red; margin-right:10px;">Remove</a>
-
-            <form action="select_address.php" method="GET">
-              <input type="hidden" name="product_id" value="<?= $c['product_id']; ?>">
-              <input type="hidden" name="quantity" value="<?= $c['unit']; ?>">
-              <button style="background:#28a745; color:white; padding:8px 15px; border:none; border-radius:5px;">
-                Buy Now
-              </button>
-            </form>
-          </div>
-
-        </div>
-
-        <?php endwhile; ?>
-      <?php else: ?>
-        <p>Your cart is empty.</p>
       <?php endif; ?>
 
     </div>
-    <div id="feedback" class="section">
-    <h3>My Feedback & Replies</h3>
-
-    <?php
-    $fb = $conn->prepare("SELECT * FROM feedback WHERE customer_id = ? ORDER BY id DESC");
-    $fb->bind_param("i", $customer_id);
-    $fb->execute();
-    $feedbacks = $fb->get_result();
-
-    if ($feedbacks->num_rows > 0) {
-        while ($f = $feedbacks->fetch_assoc()) {
-            echo "
-            <div style='background:#fff; padding:15px; border-radius:6px; margin-bottom:10px;'>
-                <p><b>Your Feedback:</b> {$f['message']}</p>
-                <p><b>Submitted on:</b> {$f['created_at']}</p>
-                <hr>
-                <p><b>Admin Reply:</b><br> " .
-                    ($f['admin_reply'] ? "<span style='color:green;'>{$f['admin_reply']}</span>" : "<i>No reply yet</i>") .
-                "</p>
-            </div>
-            ";
-        }
-    } else {
-        echo "<p>No feedback submitted yet.</p>";
-    }
-    ?>
+  <?php endwhile; else: ?>
+    <p>No orders yet.</p>
+  <?php endif; ?>
 </div>
 
 
-   <div id="feedback" class="section">
-  <h3>Feedback</h3>
-  <div class="order-list">
+<!-- ADDRESSES -->
+<div id="addresses" class="section">
+<h3>Saved Addresses</h3>
 
-    <form action="save_feedback.php" method="POST">
-        <textarea name="message" placeholder="Write your feedback..." 
-                  required style="width:100%; height:120px; padding:10px;"></textarea>
-        <br><br>
-        <button type="submit" 
-                style="background:#9c7742; color:white; padding:10px 20px; border:none; border-radius:5px;">
-            Submit Feedback
-        </button>
-    </form>
-
-    <hr><br>
-
-    <h4>Your Previous Feedback</h4>
-
-    <?php
-      $fb = $conn->prepare("SELECT * FROM feedback WHERE customer_id = ? ORDER BY id DESC");
-      $fb->bind_param("i", $customer_id);
-      $fb->execute();
-      $fb_res = $fb->get_result();
-
-      if ($fb_res->num_rows > 0) {
-          while ($f = $fb_res->fetch_assoc()) {
-              echo "<div style='background:#fff;padding:10px;border-radius:5px;margin-bottom:10px;'>
-                      {$f['message']}<br>
-                      <span style='font-size:12px;color:gray;'>{$f['created_at']}</span>
-                    </div>";
-          }
-      } else {
-          echo "<p>No feedback submitted yet.</p>";
-      }
-    ?>
-  </div>
+<div class="box">
+<form action="save_address.php" method="POST">
+  <input name="full_name" placeholder="Full Name" required><br><br>
+  <input name="phone" placeholder="Phone" required><br><br>
+  <input name="address_line" placeholder="Address" required><br><br>
+  <input name="city" placeholder="City" required><br><br>
+  <input name="pincode" placeholder="Pincode" required><br><br>
+  <input name="state" placeholder="State" required><br><br>
+  <button>Save Address</button>
+</form>
 </div>
 
+<div class="box">
+<h4>Your Saved Addresses</h4>
 
-  </div> <!-- END MAIN CONTENT -->
+<form action="set_default_address.php" method="POST">
 
-</div> <!-- END ACCOUNT CONTAINER -->
+<?php
+$addr = $conn->prepare(
+  "SELECT * FROM customer_addresses WHERE customer_id = ?"
+);
+$addr->bind_param("i", $customer_id);
+$addr->execute();
+$res = $addr->get_result();
+
+if ($res->num_rows > 0):
+while ($a = $res->fetch_assoc()):
+  $checked = ($a['is_default'] == 1) ? "checked" : "";
+?>
+
+<label style="
+  display:block;
+  background:white;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:10px;
+  cursor:pointer;
+  <?= $checked ? 'border:2px solid #28a745;' : '' ?>
+">
+  <input 
+    type="radio" 
+    name="selected_address_id" 
+    value="<?= $a['id'] ?>" 
+    <?= $checked ?> 
+    required
+    style="margin-right:10px;"
+  >
+  <b><?= htmlspecialchars($a['full_name']) ?></b><br>
+  <?= htmlspecialchars($a['address_line']) ?><br>
+  <?= htmlspecialchars($a['city']) ?> - <?= htmlspecialchars($a['pincode']) ?><br>
+  <?= htmlspecialchars($a['state']) ?>
+</label>
+
+<?php endwhile; ?>
+
+<button style="background:#28a745;color:white;padding:8px 15px;border:none;border-radius:5px;">
+  Use Selected Address
+</button>
+
+<?php else: ?>
+<p>No saved addresses.</p>
+<?php endif; ?>
+
+</form>
+</div>
+</div>
+
+<style>
+/* BASE */
+
+
+/* NAV */
+
+/* MAIN WRAPPER */
+
+
+
+/* SECTIONS */
+.section {
+  display: none;
+}
+.section.active {
+  display: block;
+}
+
+/* BOXES */
+.box {
+  background: #f1f3f6;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 40px;
+  margin-top:20px;
+  
+}
+
+/* ORDER & CART */
+.order-item,
+.cart-item {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* TRACK BUTTON */
+.track-btn {
+  background: #d6a84c;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  color: black;
+}
+
+/* EXPECTED DELIVERY */
+.expected-box {
+  background: #fdf4d7;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+</style>
+<!-- CART -->
+<div id="cart" class="section">
+<h3>My Cart</h3>
+<?php if($cart_items->num_rows): while($c=$cart_items->fetch_assoc()): ?>
+<div class="cart-item">
+<div>
+  <p><b><?= $c['material_name'] ?></b></p>
+  <p>Price: ₹<?= $c['price'] ?></p>
+  <p>Total: ₹<?= $c['price']*$c['unit'] ?></p>
+  <form action="update_cart.php" method="POST">
+    <input type="hidden" name="cart_id" value="<?= $c['id'] ?>">
+    Qty: <input type="number" name="unit" min="1" value="<?= $c['unit'] ?>" required>
+    <button>Update</button>
+  </form>
+</div>
+<div>
+  <a href="remove_cart.php?id=<?= $c['id'] ?>" style="color:red;">Remove</a><br><br>
+  <form action="select_address.php" method="GET">
+    <input type="hidden" name="product_id" value="<?= $c['product_id'] ?>">
+    <input type="hidden" name="quantity" value="<?= $c['unit'] ?>">
+    <button>Buy Now</button>
+  </form>
+</div>
+</div>
+<?php endwhile; else: ?>
+<p>Your cart is empty.</p>
+<?php endif; ?>
+</div>
+
+<!-- FEEDBACK -->
+<div id="feedback" class="section">
+<h3>Feedback</h3>
+
+<div class="box">
+<form action="save_feedback.php" method="POST">
+<textarea name="message" minlength="5" required style="width:100%;height:120px;"></textarea><br><br>
+<button>Submit</button>
+</form>
+</div>
+
+<?php
+$fb=$conn->prepare("SELECT * FROM feedback WHERE customer_id=? ORDER BY id DESC");
+$fb->bind_param("i",$customer_id);
+$fb->execute();
+$fres=$fb->get_result();
+while($f=$fres->fetch_assoc()):
+?>
+<div class="box">
+<b>Your Feedback:</b> <?= htmlspecialchars($f['message']) ?><br>
+<b>Admin Reply:</b>
+
+<?= !empty($f['admin_reply']) ? "<span style='color:green'>{$f['admin_reply']}</span>" : "<i>No reply yet</i>" ?>
+</div>
+<?php endwhile; ?>
+</div>
+
+</div>
+</div>
 
 <script>
-function showSection(id) {
-  document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
-  document.querySelectorAll(".sidebar li").forEach(li => li.classList.remove("active"));
+function showSection(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar li').forEach(li=>li.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
 
-  document.getElementById(id).classList.add("active");
-  event.target.classList.add("active");
+function openUpdateProfile(){
+  document.getElementById("updateProfileModal").style.display="block";
+}
+function closeUpdateProfile(){
+  document.getElementById("updateProfileModal").style.display="none";
 }
 </script>
+
 
 </body>
 </html>

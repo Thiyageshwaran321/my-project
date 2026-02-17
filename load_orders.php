@@ -15,7 +15,6 @@ if ($result->num_rows == 0) {
 }
 
 while ($row = $result->fetch_assoc()) {
-
     echo "
     <tr>
         <td>{$row['order_id']}</td>

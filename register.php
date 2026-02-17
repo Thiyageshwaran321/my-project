@@ -12,7 +12,7 @@ if ($conn->connect_error) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $username = $_POST['username'];
-  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+  $password = $_POST['password'];
   $email = $_POST['email'];
   $mobilenum = $_POST['mobilenum'];
 
@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           VALUES ('$username', '$password', '$email', '$mobilenum')";
 
   if ($conn->query($sql) === TRUE) {
-    echo "<script>alert('Account created successfully!'); window.location.href='index.html';</script>";
+    echo "<script>alert('Account created successfully!'); window.location.href='index.php';</script>";
   } else {
     echo "Error: " . $conn->error;
   }

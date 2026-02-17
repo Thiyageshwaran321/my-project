@@ -24,5 +24,8 @@ if ($stmt->execute()) {
     echo "<script>alert('Status updated!'); window.location='admin_orders.php';</script>";
 } else {
     echo "Error updating status";
+    
 }
 ?>
+
+

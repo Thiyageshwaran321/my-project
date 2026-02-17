@@ -1,32 +1,26 @@
+<?php
+session_start();
+include "db.php";
+
+/* FETCH PRODUCTS WITH STOCK */
+$products = $conn->query("
+  SELECT product_id, material_name, price, image, stock
+  FROM products
+");
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>PK BUILDERS</title>
   <link rel="stylesheet" href="material.css">
+     <link rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <style>
-    .password-box{
-      position: relative;
-      width: 100%;
-    }
-    .password-box input{
-      width: 100%;
-      padding: 10px 40px 10px 10px;
-    }
-    .password-box i{
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #555;
-    }
-  </style>
+
+
 </head>
 
 <body>
@@ -38,12 +32,17 @@
   </div>
 
   <nav>
-    <a href="index.html" class="home-1">HOME</a>
-    <a href="material.html" class="material">MATERIAL</a>
-    <a href="calculator.html" class="calculator">CALCULATOR</a>
-    <a href="about.html" class="about">ABOUT</a>
+    <a href="index.php" class="home-1">HOME</a>
+    <a href="material.php" class="material">MATERIAL</a>
+    <a href="calculator.php" class="calculator">CALCULATOR</a>
+    <a href="about.php" class="about">ABOUT</a>
     <a href="my_account.php" class="contact">MY ACCOUNT</a>
-    <a onclick="openLogin()" class="login">LOGIN</a>
+
+    <?php if(isset($_SESSION['customer_id'])): ?>
+      <a href="logout.php" class="login">LOGOUT</a>
+    <?php else: ?>
+      <a onclick="openLogin()" class="login">LOGIN</a>
+    <?php endif; ?>
   </nav>
 </header>
 
@@ -66,46 +65,17 @@
     <h2>Customer Login</h2>
 
     <form action="customer_connect.php" method="POST">
-      <input type="username" name="username" placeholder="Username" required />
+      <input type="text" name="username" placeholder="Username" required>
 
       <div class="password-box">
         <input type="password" name="password" id="customerPassword" placeholder="Password" required>
-        <i class="fa-solid fa-eye" onclick="togglePassword('customerPassword', this)"></i>
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('customerPassword', this)"></i>
       </div>
 
-      <div class="options">
-        <label><input type="checkbox"> Remember me</label>
-        <a href="#">Forgot Password?</a>
-      </div>
-
-      <button type="submit" name="login">Login</button>
+      <button type="submit">Login</button>
     </form>
-
-    <div class="register-link">
-      Don’t have an account? <a href="login.html">SignUp</a>
-    </div>
   </div>
-    <link rel="stylesheet"
-   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <style>
-   .password-box{
-      position: relative;
-      width: 100%;
-    }
-    .password-box input{
-      width: 100%;
-      padding: 10px 40px 10px 10px;
-    }
-    .password-box i{
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #555;
-    }
-  </style>
 
   <!-- ADMIN LOGIN -->
   <div class="login-box" id="adminLoginBox" style="display:none;">
@@ -113,16 +83,18 @@
     <h2>Admin Login</h2>
 
     <form action="admin_connect.php" method="POST">
-      <input type="text" name="adminid" placeholder="Admin ID" required />
+      <input type="text" name="adminid" placeholder="Admin ID" required>
 
       <div class="password-box">
         <input type="password" name="password" id="adminPassword" placeholder="Password" required>
-        <i class="fa-solid fa-eye" onclick="togglePassword('adminPassword', this)"></i>
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('adminPassword', this)"></i>
       </div>
 
       <button type="submit">Login</button>
     </form>
   </div>
+
 </div>
 
 <div class="container">
@@ -356,7 +328,6 @@
 </div>
 </div>
 
-<!-- ================= SCRIPT ================= -->
 
 <script>
 function togglePassword(id, icon){
@@ -396,6 +367,317 @@ window.onclick = function(event) {
   if (event.target === modal) {
     modal.style.display = 'none';
   }
+}
+</script>
+
+</body>
+</html>
+<?php
+session_start();
+include "db.php";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+* { margin: 0; padding: 0; font-family: Poppins, sans-serif; }
+
+body {
+  display: flex;
+  background: #f7e9d5;
+  color: #4b3b25;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 230px;
+  background: #9c7742;
+  color: white;
+  padding: 20px 0;
+  border-right: 3px solid #c9a66b;
+}
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.sidebar a {
+  display: block;
+  padding: 15px 25px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sidebar a:hover,
+.sidebar a.active {
+  background: #7a5c30;
+}
+
+/* Main */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+.topbar {
+  background: #fff7ec;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #d4b68a;
+}
+
+.logout-btn {
+  background: #9c7742;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+
+/* Content */
+.content {
+  padding: 25px;
+  overflow-y: auto;
+}
+
+.card {
+  background: #fffdf9;
+  border: 1px solid #e0c6a1;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e0c6a1;
+  text-align: left;
+}
+
+th {
+  background: #9c7742;
+  color: white;
+}
+
+.status-btn {
+  background: #9c7742;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.status-btn:hover {
+  background: #7a5c30;
+}
+
+input[type="number"] {
+  padding: 6px;
+  width: 80px;
+}
+
+textarea {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>ADMIN PANEL</h2>
+  <a class="active" onclick="showSection('dashboard', this)">Dashboard</a>
+  <a onclick="showSection('orders', this)">Manage Orders</a>
+  <a onclick="showSection('stock', this)">Manage Stock</a>
+  <a onclick="showSection('feedback', this)">Feedback</a>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <h3 id="page-title">Dashboard</h3>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section">
+      <div class="card">
+        <h3>Welcome Admin</h3>
+        <p>Use the menu to manage orders, stock and feedback.</p>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="orders" class="section" style="display:none;">
+      <div class="card">
+        <h3>Manage Orders</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Material</th>
+              <th>Qty</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="orderData">
+            <tr><td colspan="6">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="stock" class="section" style="display:none;">
+      <div class="card">
+        <h3>Manage Product Stock</h3>
+
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Material</th>
+            <th>Price</th>
+            <th>Current Stock</th>
+            <th>New Stock</th>
+            <th>Action</th>
+          </tr>
+
+<?php
+$products = $conn->query("
+  SELECT product_id, material_name, price, stock 
+  FROM products
+  ORDER BY product_id ASC
+");
+while ($p = $products->fetch_assoc()):
+?>
+<tr>
+  <td><?= $p['product_id'] ?></td>
+  <td><?= htmlspecialchars($p['material_name']) ?></td>
+  <td>₹<?= number_format($p['price']) ?></td>
+  <td><b><?= $p['stock'] ?></b></td>
+  <td>
+    <input type="number" id="stock<?= $p['product_id'] ?>"
+           value="<?= $p['stock'] ?>" min="0">
+  </td>
+  <td>
+    <button class="status-btn"
+      onclick="updateStock(<?= $p['product_id'] ?>)">
+      Update
+    </button>
+  </td>
+</tr>
+<?php endwhile; ?>
+
+        </table>
+      </div>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div id="feedback" class="section" style="display:none;">
+      <div class="card">
+        <h3>Customer Feedback</h3>
+
+        <table>
+          <tr>
+            <th>User</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Reply</th>
+          </tr>
+
+<?php
+$fb = $conn->query("
+  SELECT f.*, c.username
+  FROM feedback f
+  JOIN customers c ON f.customer_id = c.customer_id
+  ORDER BY f.id DESC
+");
+while ($row = $fb->fetch_assoc()):
+?>
+<tr>
+  <td><?= $row['username'] ?></td>
+  <td><?= $row['message'] ?></td>
+  <td><?= $row['created_at'] ?></td>
+  <td>
+    <form action="reply_feedback.php" method="POST">
+      <input type="hidden" name="id" value="<?= $row['id'] ?>">
+      <textarea name="reply"><?= $row['admin_reply'] ?></textarea><br>
+      <button class="status-btn">Send</button>
+    </form>
+  </td>
+</tr>
+<?php endwhile; ?>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
+
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove("active"));
+  el.classList.add("active");
+
+  document.getElementById("page-title").innerText =
+    el.innerText;
+}
+
+function loadOrders() {
+  fetch("load_orders.php")
+    .then(res => res.text())
+    .then(data => document.getElementById("orderData").innerHTML = data);
+}
+
+function updateStock(product_id) {
+  let stock = document.getElementById("stock" + product_id).value;
+
+  let fd = new FormData();
+  fd.append("product_id", product_id);
+  fd.append("stock", stock);
+
+  fetch("update_stock.php", {
+    method: "POST",
+    body: fd
+  })
+  .then(res => res.text())
+  .then(data => {
+    if (data.trim() === "success") {
+      alert("Stock updated!");
+    } else {
+      alert("Error: " + data);
+    }
+  });
+}
+
+function logout() {
+  window.location.href = "logout.php";
 }
 </script>
 
