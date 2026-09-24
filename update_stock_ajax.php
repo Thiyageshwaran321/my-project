@@ -4,11 +4,11 @@ include "db.php";
 
 header('Content-Type: application/json');
 
-// Show errors (turn OFF in production)
+// Error reporting (turn OFF in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Include PHPMailer
+// Include PHPMailer - Adjust path if needed
 require_once __DIR__ . '/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/src/SMTP.php';
@@ -16,7 +16,7 @@ require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Check DB
+// Check database connection
 if (!$conn || $conn->connect_error) {
     echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
     exit();
@@ -29,20 +29,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Validate inputs
-if (!isset($_POST['product_id'], $_POST['stock'])) {
+if (!isset($_POST['product_id']) || !isset($_POST['stock'])) {
     echo json_encode(['status' => 'error', 'message' => 'Missing required fields']);
     exit();
 }
 
 $product_id = (int)$_POST['product_id'];
-$new_stock  = (int)$_POST['stock'];
-$low_stock_limit = isset($_POST['low_stock_limit']) ? (int)$_POST['low_stock_limit'] : 0;
+$new_stock = (int)$_POST['stock'];
+$reorder_level = isset($_POST['low_stock_limit']) ? (int)$_POST['low_stock_limit'] : 0;
 
-// Fetch product details
+// Fetch current product details BEFORE update
 $productName = '';
-$oldStock = 0;
+$old_stock = 0;
 $unitType = '';
-$dbLowLimit = 0;
+$current_reorder = 0;
 
 $getProduct = $conn->prepare("SELECT material_name, stock, unit_type, low_stock_limit FROM products WHERE product_id = ?");
 $getProduct->bind_param("i", $product_id);
@@ -51,130 +51,256 @@ $result = $getProduct->get_result();
 
 if ($row = $result->fetch_assoc()) {
     $productName = $row['material_name'];
-    $oldStock    = (int)$row['stock'];
-    $unitType    = $row['unit_type'];
-    $dbLowLimit  = (int)$row['low_stock_limit'];
+    $old_stock = (int)$row['stock'];
+    $unitType = $row['unit_type'];
+    $current_reorder = (int)$row['low_stock_limit'];
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Product not found']);
     exit();
 }
 $getProduct->close();
 
-// Decide which low limit to use
-if ($low_stock_limit <= 0) {
-    $low_stock_limit = $dbLowLimit;
+// Use provided reorder level or keep existing
+if ($reorder_level <= 0) {
+    $reorder_level = $current_reorder;
 }
 
 // Safety default
-if ($low_stock_limit <= 0) {
-    $low_stock_limit = 10;
+if ($reorder_level <= 0) {
+    $reorder_level = 10;
 }
 
-// Update stock (and low stock limit)
-if (isset($_POST['low_stock_limit']) && (int)$_POST['low_stock_limit'] > 0) {
-    $stmt = $conn->prepare("UPDATE products SET stock = ?, low_stock_limit = ? WHERE product_id = ?");
-    $stmt->bind_param("iii", $new_stock, $low_stock_limit, $product_id);
-} else {
-    $stmt = $conn->prepare("UPDATE products SET stock = ? WHERE product_id = ?");
-    $stmt->bind_param("ii", $new_stock, $product_id);
-}
+// Update stock and reorder level
+$stmt = $conn->prepare("UPDATE products SET stock = ?, low_stock_limit = ? WHERE product_id = ?");
+$stmt->bind_param("iii", $new_stock, $reorder_level, $product_id);
 
 if (!$stmt->execute()) {
     echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $stmt->error]);
     exit();
 }
 $stmt->close();
-// After reducing stock, fetch new stock + limit
-$p = $conn->prepare("SELECT material_name, stock, low_stock_limit, unit_type FROM products WHERE product_id = ?");
-$p->bind_param("i", $product_id);
-$p->execute();
-$r = $p->get_result()->fetch_assoc();
 
-if ($r) {
-    $productName = $r['material_name'];
-    $newStock    = (int)$r['stock'];
-    $limit       = (int)$r['low_stock_limit'];
-    $unitType    = $r['unit_type'];
+// Check if stock is BELOW reorder level and send email
+$email_sent = false;
+$email_status = 'not_sent';
+$email_message = '';
 
-    // If stock reached or went below reorder level → SEND MAIL
-    if ($newStock <= $limit) {
-        sendLowStockMail($productName, $newStock, $limit, $unitType);
+// Send email ONLY when stock goes BELOW the reorder level
+if ($new_stock < $reorder_level) {
+    // Calculate critical level (20% of reorder level)
+    $criticalLevel = max(1, floor($reorder_level * 0.2));
+    
+    $email_sent = sendLowStockMail(
+        $productName, 
+        $new_stock, 
+        $reorder_level, 
+        $unitType,
+        $criticalLevel,
+        $old_stock
+    );
+    
+    if ($email_sent) {
+        $email_status = 'sent';
+        $email_message = "Low stock alert email sent for {$productName}";
+        error_log("✅ LOW STOCK EMAIL SENT: {$productName} - Stock: {$new_stock}{$unitType}, Limit: {$reorder_level}{$unitType}");
+    } else {
+        $email_status = 'failed';
+        $email_message = "Failed to send low stock alert email";
+        error_log("❌ EMAIL FAILED: {$productName} - Check PHPMailer settings");
     }
 }
 
-// ✅ SIMPLE & RELIABLE: If stock is LOW after update → send mail
-$emailSent = false;
-
-// Send mail ONLY when stock crosses from above limit to low/equal limit
-if (
-    (int)$oldStock > (int)$low_stock_limit &&
-    (int)$new_stock <= (int)$low_stock_limit
-) {
-    $emailSent = sendLowStockMail($productName, $new_stock, $low_stock_limit, $unitType);
-}
-
-
-
-// Prepare message
-$addedQuantity = $new_stock - $oldStock;
+// Prepare user message
+$addedQuantity = $new_stock - $old_stock;
 if ($addedQuantity > 0) {
-    $message = "Successfully added {$addedQuantity} {$unitType} to {$productName}. New stock: {$new_stock} {$unitType}";
+    $message = "✅ Successfully added {$addedQuantity} {$unitType} to {$productName}";
+} elseif ($addedQuantity < 0) {
+    $message = "✅ Successfully reduced stock by " . abs($addedQuantity) . " {$unitType}";
 } else {
-    $message = "Stock updated successfully";
+    $message = "✅ Stock updated successfully (no change)";
 }
 
-// Final JSON response
+$message .= ". New stock: {$new_stock} {$unitType}";
+
+// Add warning if stock is below reorder level
+if ($new_stock < $reorder_level) {
+    $message .= " ⚠️ Stock is BELOW reorder level ({$reorder_level} {$unitType})";
+}
+
+// Return JSON response
 echo json_encode([
     'status' => 'success',
     'message' => $message,
-    'email_sent' => $emailSent
+    'email_sent' => $email_sent,
+    'email_status' => $email_status,
+    'email_message' => $email_message,
+    'data' => [
+        'product_id' => $product_id,
+        'product_name' => $productName,
+        'old_stock' => $old_stock,
+        'new_stock' => $new_stock,
+        'added_quantity' => $addedQuantity,
+        'unit_type' => $unitType,
+        'reorder_level' => $reorder_level,
+        'is_below_reorder' => ($new_stock < $reorder_level)
+    ]
 ]);
 
 $conn->close();
 exit();
 
-
-// =======================
-// MAIL FUNCTION
-// =======================
-function sendLowStockMail($productName, $stockLeft, $threshold, $unitType) {
-
+// ============================================
+// ENHANCED EMAIL FUNCTION
+// ============================================
+function sendLowStockMail($productName, $stockLeft, $reorderLevel, $unitType, $criticalLevel, $oldStock) {
+    
     $mail = new PHPMailer(true);
 
     try {
-        // No debug in AJAX
-        $mail->SMTPDebug = 0;
-
-        // SMTP settings
+        // SMTP Configuration
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'thiyageshhari5655@gmail.com';
-        $mail->Password   = 'zopmcuwqdvfyoksi'; // App password
+        $mail->Username   = 'thiyageshhari5655@gmail.com'; // Your Gmail
+        $mail->Password   = 'zopmcuwqdvfyoksi'; // Your App Password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
+        $mail->Timeout    = 30;
+        
+        // Disable SSL verification for testing (remove in production)
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
 
-        // Sender & Receiver
-        $mail->setFrom('thiyageshhari5655@gmail.com', 'PKBUILDERS Alert');
-        $mail->addAddress('thiyageshhari321@gmail.com');
+        // Sender & Recipient
+        $mail->setFrom('thiyageshhari5655@gmail.com', 'PKBUILDERS Inventory');
+        $mail->addAddress('thiyageshhari321@gmail.com', 'Admin');
+        $mail->addReplyTo('thiyageshhari5655@gmail.com', 'Support');
 
-        // Content
+        // Calculate urgency
+        $belowBy = $reorderLevel - $stockLeft;
+        $percentage = ($stockLeft / $reorderLevel) * 100;
+        
+        if ($stockLeft <= $criticalLevel) {
+            $urgency = 'CRITICAL';
+            $urgencyColor = '#c53030';
+        } elseif ($percentage <= 50) {
+            $urgency = 'URGENT';
+            $urgencyColor = '#ecc94b';
+        } else {
+            $urgency = 'WARNING';
+            $urgencyColor = '#4299e1';
+        }
+
+        // Email Subject
+        $mail->Subject = "🚨 {$urgency} STOCK ALERT: {$productName}";
+
+        // HTML Email Body
         $mail->isHTML(true);
-        $mail->Subject = 'Low Stock Alert: ' . $productName;
         $mail->Body = "
-            <h2>⚠️ Low Stock Alert</h2>
-            <p><strong>Product:</strong> {$productName}</p>
-            <p><strong>Current Stock:</strong> {$stockLeft} {$unitType}</p>
-            <p><strong>Threshold:</strong> {$threshold} {$unitType}</p>
-            <p>Please restock immediately.</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Segoe UI', Arial, sans-serif; }
+                .container { max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+                .header { background: {$urgencyColor}; color: white; padding: 20px; text-align: center; }
+                .content { padding: 25px; background: #ffffff; }
+                .warning-box { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 15px; margin: 20px 0; }
+                .product-name { font-size: 22px; font-weight: bold; color: #2d3748; }
+                .stock-value { font-size: 32px; font-weight: bold; color: #e53e3e; }
+                .details { background: #f7fafc; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                .details table { width: 100%; }
+                .details td { padding: 8px; }
+                .label { font-weight: 600; color: #4a5568; }
+                .footer { background: #f7fafc; padding: 15px; text-align: center; font-size: 12px; color: #718096; }
+                .button { display: inline-block; background: #4299e1; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h2>⚠️ {$urgency} STOCK ALERT</h2>
+                    <p>Action Required Immediately</p>
+                </div>
+                <div class='content'>
+                    <div class='product-name'>{$productName}</div>
+                    
+                    <div class='warning-box'>
+                        <p style='margin:0; font-size:16px;'>
+                            <strong>Stock has fallen below reorder level!</strong>
+                        </p>
+                    </div>
+                    
+                    <div class='details'>
+                        <table>
+                            <tr>
+                                <td class='label'>Current Stock:</td>
+                                <td><span class='stock-value'>{$stockLeft} {$unitType}</span></td>
+                            </tr>
+                            <tr>
+                                <td class='label'>Reorder Level:</td>
+                                <td><strong>{$reorderLevel} {$unitType}</strong></td>
+                            </tr>
+                            <tr>
+                                <td class='label'>Deficit:</td>
+                                <td><strong style='color:#e53e3e;'>{$belowBy} {$unitType} below limit</strong></td>
+                            </tr>
+                            <tr>
+                                <td class='label'>Previous Stock:</td>
+                                <td>{$oldStock} {$unitType}</td>
+                            </tr>
+                            <tr>
+                                <td class='label'>Critical Level:</td>
+                                <td>{$criticalLevel} {$unitType}</td>
+                            </tr>
+                            <tr>
+                                <td class='label'>Alert Time:</td>
+                                <td>" . date('d-m-Y H:i:s') . "</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div style='text-align: center; margin-top: 25px;'>
+                        <p><strong>Immediate action required to prevent stockout!</strong></p>
+                        <a href='http://" . $_SERVER['HTTP_HOST'] . "/admindashboard.php' class='button'>Go to Admin Panel</a>
+                    </div>
+                </div>
+                <div class='footer'>
+                    <p>This is an automated message from PKBUILDERS Inventory System</p>
+                    <p style='font-size:11px;'>Please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
+        </html>
         ";
 
-        $mail->AltBody = "Low Stock Alert\nProduct: {$productName}\nStock: {$stockLeft} {$unitType}\nThreshold: {$threshold}";
+        // Plain text version
+        $mail->AltBody = "{$urgency} STOCK ALERT\n\n" .
+                        "Product: {$productName}\n" .
+                        "Current Stock: {$stockLeft} {$unitType}\n" .
+                        "Reorder Level: {$reorderLevel} {$unitType}\n" .
+                        "Deficit: {$belowBy} {$unitType} below limit\n" .
+                        "Critical Level: {$criticalLevel} {$unitType}\n" .
+                        "Previous Stock: {$oldStock} {$unitType}\n" .
+                        "Alert Time: " . date('d-m-Y H:i:s') . "\n\n" .
+                        "ACTION REQUIRED: Please restock immediately!\n" .
+                        "Login to admin panel to update stock.";
 
-        return $mail->send();
+        // Send email
+        if($mail->send()) {
+            return true;
+        } else {
+            error_log("PHPMailer Error: " . $mail->ErrorInfo);
+            return false;
+        }
 
     } catch (Exception $e) {
-        error_log("Mail Error: " . $mail->ErrorInfo);
+        error_log("PHPMailer Exception: " . $mail->ErrorInfo);
         return false;
     }
 }

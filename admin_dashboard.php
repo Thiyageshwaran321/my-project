@@ -933,7 +933,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Add to Stock Function with Individual Restock Level
+// Add to Stock Function with Email Notification
 function addToStock(product_id, currentStock, unitType) {
     let addValue = document.getElementById("add_stock_" + product_id).value;
     let reorderLevel = document.getElementById("reorder_" + product_id).value;
@@ -953,10 +953,10 @@ function addToStock(product_id, currentStock, unitType) {
     // Calculate new stock value (current + added)
     let newStock = parseInt(currentStock) + parseInt(addValue);
     
-    // Show warning if still below reorder level after addition
+    // Check if stock will be below reorder level after update
     let warningMessage = "";
-    if (newStock <= reorderLevel) {
-        warningMessage = `\n\n⚠️ WARNING: Stock will still be BELOW reorder level (${reorderLevel} ${unitType})!`;
+    if (newStock < reorderLevel) {
+        warningMessage = `\n\n⚠️ WARNING: Stock will be BELOW reorder level (${reorderLevel} ${unitType})!\nAn email alert will be sent.`;
     }
     
     // Confirm with user
@@ -970,12 +970,12 @@ function addToStock(product_id, currentStock, unitType) {
     let formData = new FormData();
     formData.append("product_id", product_id);
     formData.append("stock", newStock);
-    formData.append("low_stock_limit", reorderLevel); // Using low_stock_limit field for reorder level
+    formData.append("low_stock_limit", reorderLevel);
 
     // Show loading state
     const updateBtn = event.target;
     const originalText = updateBtn.innerHTML;
-    updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
     updateBtn.disabled = true;
 
     fetch("update_stock_ajax.php", {
@@ -985,7 +985,16 @@ function addToStock(product_id, currentStock, unitType) {
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
-            alert(`✅ ${data.message}`);
+            let message = data.message;
+            
+            // Show email status if applicable
+            if (data.email_status === 'sent') {
+                message += '\n\n📧 Low stock alert email sent to admin!';
+            } else if (data.email_status === 'failed') {
+                message += '\n\n⚠️ Warning: Stock is below limit but email could not be sent.';
+            }
+            
+            alert(message);
             location.reload();
         } else {
             alert("❌ Error: " + data.message);
