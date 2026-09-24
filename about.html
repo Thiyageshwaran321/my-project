@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About of PK Building Material</title>
+   <link rel="stylesheet" href="about.css">
+</head>
+<body>
+    
+  <header>
+  
+ <div class="logo" style="display: flex; align-items: center;  ;">
+    <img src="static/pklogo.png" alt="Logo" style="height: 130px; width: 180px; margin-right: 15px;margin-top:-15px;">
+    <div>
+       
+    </div>
+</div>
+
+  
+    <nav>
+      <a href="index.html" class="home-1">HOME</a> 
+      <a href="material.html" class="material">MATERIAL</a>
+      <a href="calculator.html" class="calculator">CALCULATOR</a>
+      <a href="about.html" class="about">ABOUT</a>
+      <a href="my_account.html" class="contact">MY ACCOUNT</a>
+      <a onclick="openLogin()" class="login">LOGIN</a>
+   
+   </nav>
+   </header>
+
+  <main>
+     
+    <div class="stats-section">
+    <div class="stat-card">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Projects Delivered</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">50+</div>
+        <div class="stat-label">Material Types</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Customer Support</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Quality Guarantee</div>
+    </div>
+</div>
+      
+      <!-- Login Modal -->
+<div class="modal" id="loginModal">
+    <link rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+   .password-box{
+      position: relative;
+      width: 100%;
+    }
+    .password-box input{
+      width: 100%;
+      padding: 10px 40px 10px 10px;
+    }
+    .password-box i{
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #555;
+    }
+  </style>
+  <div class="login-box" id="roleSelectBox">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Login</h2>
+    <p style="text-align:center;">Select your role</p>
+    <button onclick="showCustomerLogin()">Customer</button>
+    <button onclick="showAdminLogin()">Admin</button>
+  </div>
+
+  <!-- CUSTOMER LOGIN -->
+  <div class="login-box" id="customerLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Customer Login</h2>
+
+    <form action="customer_connect.php" method="POST">
+      <input type="text" name="username" placeholder="Username" required />
+
+      <div class="password-box">
+        <input type="password" name="password" id="customerPassword" placeholder="Password" required>
+        <i class="fa-solid fa-eye" onclick="togglePassword('customerPassword', this)"></i>
+      </div>
+
+      <div class="options">
+        <label><input type="checkbox"> Remember me</label>
+        <a href="#">Forgot Password?</a>
+      </div>
+
+      <button type="submit" name="login">Login</button>
+    </form>
+
+    <div class="register-link">
+      Don’t have an account? <a href="login.html">SignUp</a>
+    </div>
+  </div>
+  
+
+  <!-- ADMIN LOGIN -->
+  <div class="login-box" id="adminLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Admin Login</h2>
+
+    <form action="admin_connect.php" method="POST">
+      <input type="text" name="adminid" placeholder="Admin ID" required />
+
+      <div class="password-box">
+        <input type="password" name="password" id="adminPassword" placeholder="Password" required>
+        <i class="fa-solid fa-eye" onclick="togglePassword('adminPassword', this)"></i>
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openLogin() {
+    document.getElementById('loginModal').style.display = 'flex';
+    document.getElementById('roleSelectBox').style.display = 'block';
+    document.getElementById('customerLoginBox').style.display = 'none';
+    document.getElementById('adminLoginBox').style.display = 'none';
+  }
+
+  function closeLogin() {
+    document.getElementById('loginModal').style.display = 'none';
+  }
+
+  function showCustomerLogin() {
+    document.getElementById('roleSelectBox').style.display = 'none';
+    document.getElementById('customerLoginBox').style.display = 'block';
+  }
+
+  function showAdminLogin() {
+    document.getElementById('roleSelectBox').style.display = 'none';
+    document.getElementById('adminLoginBox').style.display = 'block';
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('loginModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+</script>
+
+    </section>
+  </main>
+<main>
+  <section class="about-section">
+    <div class="about-intro">
+      <h1>About <span>PK Building Material</span></h1>
+      <p>
+        At <strong>PK Building Material</strong>, we believe that building your dream shouldn’t be complicated. 
+        Our mission is to make high-quality construction materials easily accessible, affordable, and delivered right to your site — on time, every time.
+      </p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <h2>🏗️ Our Vision</h2>
+        <p>
+          To revolutionize the way construction materials are ordered and delivered by blending technology, 
+          reliability, and customer-centric service.
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h2>🚚 What We Offer</h2>
+        <ul>
+          <li>Premium-quality cement, sand, steel, and bricks</li>
+          <li>Vehicle rental for delivery (Tippers, Trucks, Loaders)</li>
+          <li>Smart order tracking with real-time GPS updates</li>
+          <li>Flexible payment and feedback system</li>
+        </ul>
+      </div>
+
+      <div class="about-card">
+        <h2>💡 Why Choose Us?</h2>
+        <ul>
+          <li>✔️ Trusted suppliers and verified materials</li>
+          <li>✔️ Transparent pricing and easy ordering</li>
+          <li>✔️ Fast delivery and active customer support</li>
+          <li>✔️ Track your orders anytime, anywhere</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-mission">
+      <h2>Our Commitment</h2>
+      <p>
+        We’re committed to being more than just a supplier — we’re your <strong>construction partner</strong>. 
+        Whether it’s a small home project or a large-scale development, our team ensures smooth, efficient, and reliable material delivery.
+      </p>
+      <a href="material.html" class="frontbui">Explore Materials</a>
+      <a href="calculator.html" class="frontcal">Estimate Cost</a>
+    </div>
+  </section>
+</main>
+
+    <div class="footer">
+      &copy; 2025 PK Building Material. All rights reserved.
+    </div>
+  </div>
+
+</body>
+</html>

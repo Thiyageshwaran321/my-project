@@ -1,0 +1,814 @@
+/* calculator.css */
+/* ===== Global Styles & Variables ===== */
+:root {
+    /* Construction Theme Colors */
+    --primary: #d1b961;
+    --primary-dark: #b89c4a;
+    --primary-light: #e8d9a0;
+    --secondary: #a67c52;
+    --secondary-dark: #8b5e34;
+    --dark: #333333;
+    --light: #f3e9d7;
+    --white: #ffffff;
+    --gray: #6c757d;
+    --gray-light: #f8f9fa;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    
+    /* Effects */
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+    --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --shadow-calculator: 0 15px 50px rgba(0, 0, 0, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --border-radius: 12px;
+    --border-radius-lg: 20px;
+}
+
+/* ===== Reset & Base Styles ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f3e9d7 0%, #e8ddc8 100%);
+    color: var(--dark);
+    line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Construction Background Pattern */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(45deg, transparent 65%, rgba(209, 185, 97, 0.05) 75%, transparent 85%),
+        linear-gradient(-45deg, transparent 65%, rgba(166, 124, 82, 0.05) 75%, transparent 85%),
+        radial-gradient(circle at 20% 80%, rgba(209, 185, 97, 0.05) 0%, transparent 50%);
+    background-size: 100px 100px, 100px 100px, 400px 400px;
+    z-index: -1;
+}
+
+/* ===== Header & Navigation ===== */
+header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%);
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 3px solid var(--primary);
+    transition: var(--transition);
+}
+
+header:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 120px;
+    width: auto;
+    transition: var(--transition);
+    filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.1));
+    cursor: pointer;
+}
+
+.logo img:hover {
+    transform: scale(1.05) rotate(-1deg);
+    filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.2));
+}
+
+/* Navigation */
+nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+    position: relative;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 30px;
+    background: transparent;
+    overflow: hidden;
+}
+
+nav a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(209, 185, 97, 0.15), transparent);
+    transition: var(--transition);
+    z-index: -1;
+}
+
+nav a:hover {
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+nav a:hover::before {
+    left: 100%;
+}
+
+/* Active page indicator */
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: var(--transition);
+    border-radius: 2px;
+}
+
+nav a:hover::after {
+    width: 60%;
+}
+
+/* Current page highlight */
+.calculator {
+    color: var(--primary);
+    background: rgba(209, 185, 97, 0.1);
+    font-weight: 700;
+}
+
+/* Login Button */
+.login {
+    background: linear-gradient(135deg, var(--dark) 0%, #444 100%);
+    color: var(--primary) !important;
+    padding: 0.8rem 2rem !important;
+    border-radius: 30px;
+    border: none;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.login:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--dark) !important;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(209, 185, 97, 0.4);
+}
+
+/* ===== Calculator Container ===== */
+.calculator1 {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(243, 233, 215, 0.95));
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 3rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-calculator);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(209, 185, 97, 0.3);
+    animation: slideUp 0.6s ease-out;
+}
+
+.calculator1::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.calculator1::after {
+    content: '🧮';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    font-size: 8rem;
+    opacity: 0.05;
+    z-index: 0;
+}
+
+.calculator1 h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.calculator1 h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+}
+
+/* Form Elements */
+.calculator1 label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.calculator1 label::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.calculator1 select,
+.calculator1 input[type="number"] {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    margin-bottom: 2rem;
+    border: 2px solid rgba(209, 185, 97, 0.3);
+    border-radius: var(--border-radius);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--dark);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: var(--transition);
+    font-family: 'Poppins', sans-serif;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d1b961' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+}
+
+.calculator1 select:focus,
+.calculator1 input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(209, 185, 97, 0.2);
+    transform: translateY(-2px);
+}
+
+.calculator1 select option {
+    padding: 1rem;
+    background: white;
+    color: var(--dark);
+    font-weight: 500;
+}
+
+/* Calculate Button */
+.calculator1 .btn {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--dark);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.calculator1 .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: var(--transition);
+}
+
+.calculator1 .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(209, 185, 97, 0.4);
+}
+
+.calculator1 .btn:hover::before {
+    left: 100%;
+}
+
+.calculator1 .btn::after {
+    content: '🧮';
+    font-size: 1.2rem;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* ===== Result Container ===== */
+.result {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(243, 233, 215, 0.95));
+    max-width: 800px;
+    margin: 2rem auto 4rem;
+    padding: 2.5rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(209, 185, 97, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.6s ease-out;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.result::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+.result strong {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    display: block;
+    text-align: center;
+}
+
+.result p {
+    font-size: 1.2rem;
+    color: var(--dark);
+    margin: 0.8rem 0;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary);
+}
+
+.result strong:last-child {
+    font-size: 2rem;
+    color: var(--secondary);
+    background: rgba(209, 185, 97, 0.1);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    margin-top: 1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* ===== Modal Styles ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.login-box {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(243, 233, 215, 0.98) 100%);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-modal);
+    padding: 3rem;
+    width: 420px;
+    max-width: 90vw;
+    position: relative;
+    border: 1px solid rgba(209, 185, 97, 0.3);
+    animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+
+.login-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--dark);
+    font-size: 2rem;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.login-box h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+}
+
+.login-box input[type="text"],
+.login-box input[type="username"],
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    border: 2px solid rgba(209, 185, 97, 0.3);
+    border-radius: var(--border-radius);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--dark);
+    font-size: 1rem;
+    transition: var(--transition);
+    font-family: 'Poppins', sans-serif;
+}
+
+.login-box input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(209, 185, 97, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Password Box */
+.password-box {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.password-box input {
+    padding-right: 3rem;
+}
+
+.password-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--gray);
+    transition: var(--transition);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-box i:hover {
+    color: var(--primary);
+    background: rgba(209, 185, 97, 0.1);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.login-box .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin: 1.5rem 0;
+    color: #666;
+}
+
+.login-box .options label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.login-box .options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.login-box .options a {
+    color: var(--secondary);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+}
+
+.login-box .options a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--secondary);
+    transition: var(--transition);
+}
+
+.login-box .options a:hover {
+    color: var(--primary);
+}
+
+.login-box .options a:hover::after {
+    width: 100%;
+}
+
+/* Login Buttons */
+.login-box button[type="submit"],
+#roleSelectBox button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    background: linear-gradient(135deg, var(--dark) 0%, #444 100%);
+    color: var(--primary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    transition: var(--transition);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-box button[type="submit"]:hover,
+#roleSelectBox button:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--dark);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(209, 185, 97, 0.3);
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    color: var(--primary);
+    font-size: 1.8rem;
+    cursor: pointer;
+    background: rgba(209, 185, 97, 0.1);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+    z-index: 10;
+}
+
+.close-btn:hover {
+    background: var(--primary);
+    color: var(--dark);
+    transform: rotate(90deg) scale(1.1);
+}
+
+.register-link {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 2rem;
+    color: #666;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(209, 185, 97, 0.2);
+}
+
+.register-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+    margin-left: 0.5rem;
+    position: relative;
+}
+
+.register-link a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--primary);
+    transition: var(--transition);
+}
+
+.register-link a:hover {
+    color: var(--secondary);
+}
+
+.register-link a:hover::after {
+    width: 100%;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Construction Decorative Elements ===== */
+.construction-icons {
+    position: fixed;
+    font-size: 3rem;
+    opacity: 0.03;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.construction-icons:nth-child(1) { top: 10%; left: 5%; content: '📐'; }
+.construction-icons:nth-child(2) { top: 30%; right: 10%; content: '📏'; }
+.construction-icons:nth-child(3) { bottom: 20%; left: 15%; content: '🧱'; }
+.construction-icons:nth-child(4) { bottom: 40%; right: 8%; content: '🏗️'; }
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    nav a {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .calculator1 {
+        margin: 2rem 1rem;
+        padding: 2rem;
+    }
+    
+    .calculator1 h2 {
+        font-size: 2rem;
+    }
+    
+    .result {
+        margin: 2rem 1rem;
+        padding: 2rem;
+    }
+    
+    .login {
+        padding: 0.7rem 1.5rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .calculator1 {
+        padding: 1.5rem;
+    }
+    
+    .calculator1 h2 {
+        font-size: 1.8rem;
+    }
+    
+    .calculator1 select,
+    .calculator1 input[type="number"] {
+        padding: 0.9rem;
+    }
+    
+    nav a {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .logo img {
+        height: 100px;
+    }
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--primary), var(--secondary));
+    border-radius: 5px;
+    transition: var(--transition);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(var(--primary-dark), var(--secondary-dark));
+}
+
+/* ===== Selection Color ===== */
+::selection {
+    background-color: rgba(209, 185, 97, 0.3);
+    color: var(--dark);
+}
+
+/* ===== Focus Styles ===== */
+a:focus,
+button:focus,
+input:focus,
+select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}

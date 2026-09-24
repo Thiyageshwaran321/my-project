@@ -1,0 +1,685 @@
+<?php
+session_start();
+include "db.php";
+
+/* FETCH PRODUCTS WITH STOCK */
+$products = $conn->query("
+  SELECT product_id, material_name, price, image, stock
+  FROM products
+");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PK BUILDERS</title>
+  <link rel="stylesheet" href="material.css">
+     <link rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Font Awesome -->
+
+
+
+</head>
+
+<body>
+
+<header>
+  <div class="logo" style="display:flex;align-items:center;">
+    <img src="static/pklogo.png"
+         style="height:130px;width:180px;margin-right:15px;margin-top:-15px;">
+  </div>
+
+  <nav>
+    <a href="index.php" class="home-1">HOME</a>
+    <a href="material.php" class="material">MATERIAL</a>
+    <a href="calculator.php" class="calculator">CALCULATOR</a>
+    <a href="about.php" class="about">ABOUT</a>
+    <a href="my_account.php" class="contact">MY ACCOUNT</a>
+
+    <?php if(isset($_SESSION['customer_id'])): ?>
+      <a href="logout.php" class="login">LOGOUT</a>
+    <?php else: ?>
+      <a onclick="openLogin()" class="login">LOGIN</a>
+    <?php endif; ?>
+  </nav>
+</header>
+
+<!-- ================= LOGIN MODAL ================= -->
+
+<div class="modal" id="loginModal">
+
+  <!-- ROLE SELECT -->
+  <div class="login-box" id="roleSelectBox">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Login</h2>
+    <p style="text-align:center;">Select your role</p>
+    <button onclick="showCustomerLogin()">Customer</button>
+    <button onclick="showAdminLogin()">Admin</button>
+  </div>
+
+  <!-- CUSTOMER LOGIN -->
+  <div class="login-box" id="customerLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Customer Login</h2>
+
+    <form action="customer_connect.php" method="POST">
+      <input type="text" name="username" placeholder="Username" required>
+
+      <div class="password-box">
+        <input type="password" name="password" id="customerPassword" placeholder="Password" required>
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('customerPassword', this)"></i>
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div class="login-box" id="adminLoginBox" style="display:none;">
+    <div class="close-btn" onclick="closeLogin()">&times;</div>
+    <h2>Admin Login</h2>
+
+    <form action="admin_connect.php" method="POST">
+      <input type="text" name="adminid" placeholder="Admin ID" required>
+
+      <div class="password-box">
+        <input type="password" name="password" id="adminPassword" placeholder="Password" required>
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('adminPassword', this)"></i>
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+</div>
+
+<div class="container">
+<div class="cards">
+
+
+<!-- ⭐⭐⭐ PRODUCT BLOCK TEMPLATE ⭐⭐⭐ -->
+<!--
+  SAME structure for all products:
+  - Order Now → GET → select_address.php
+  - Add to Cart → POST → add_to_cart.php
+-->
+
+
+<!-- ===================== MSAND ===================== -->
+<div class="card">
+  <img src="static/2m-sand.jpg" class="material-img">
+  <h3>MSand</h3>
+  <p class="price">₹4500 per unit</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+
+    <input type="hidden" name="product_id" value="2">
+
+    <div class="btn-group">
+
+      <!-- ORDER NOW -->
+      <button type="submit"
+              formaction="select_address.php"
+              formmethod="GET"
+              class="order-btn">
+        Order Now
+      </button>
+
+      <!-- ADD TO CART -->
+      <button type="submit"
+              formaction="add_to_cart.php"
+              formmethod="POST"
+              class="calc-btn">
+        Add to cart
+      </button>
+
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== PSAND ===================== -->
+<div class="card">
+  <img src="static/psand.avif" class="material-img">
+  <h3>PSand</h3>
+  <p class="price">₹9000 per unit</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+
+    <input type="hidden" name="product_id" value="1">
+
+    <div class="btn-group">
+      <button type="submit" formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button type="submit" formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== DUST ===================== -->
+<div class="card">
+  <img src="static/dust.webp" class="material-img">
+  <h3>Dust</h3>
+  <p class="price">₹9000 per unit</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="4">
+
+    <div class="btn-group">
+      <button type="submit" formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button type="submit" formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== SAND ===================== -->
+<div class="card">
+  <img src="static/sand.jpg" class="material-img">
+  <h3>Sand</h3>
+  <p class="price">₹9000 per unit</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="5">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== RAMCO CEMENT ===================== -->
+<div class="card">
+  <img src="static/ramco.jpg" class="material-img">
+  <h3>Ramco Cement</h3>
+  <p class="price">₹350 per pack</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="6">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== CHETTINAD CEMENT ===================== -->
+<div class="card">
+  <img src="static/cement.png" class="material-img">
+  <h3>Chettinad Cement</h3>
+  <p class="price">₹400 per pack</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="7">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== ULTRATECH CEMENT ===================== -->
+<div class="card">
+  <img src="static/tech.png" class="material-img">
+  <h3>Ultratech Cement</h3>
+  <p class="price">₹450 per pack</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="8">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== RED BRICK ===================== -->
+<div class="card">
+  <img src="static/redbricks.jpg" class="material-img">
+  <h3>Red Brick</h3>
+  <p class="price">₹10 per piece</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="9">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== GRAVEL ===================== -->
+<div class="card">
+  <img src="static/gravel.webp" class="material-img">
+  <h3>Gravel</h3>
+  <p class="price">₹5000 per unit</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="10">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+
+<!-- ===================== WASTE SAND ===================== -->
+<div class="card">
+  <img src="static/waste.jpg" class="material-img">
+  <h3>Waste Sand</h3>
+  <p class="price">₹3000 per unit</p>
+
+  <form>
+    <label>Choose unit:</label>
+    <input type="number" name="quantity" class="unit" required>
+    <input type="hidden" name="product_id" value="11">
+
+    <div class="btn-group">
+      <button formaction="select_address.php" formmethod="GET" class="order-btn">Order Now</button>
+      <button formaction="add_to_cart.php" formmethod="POST" class="calc-btn">Add to cart</button>
+    </div>
+  </form>
+</div>
+
+
+</div>
+</div>
+
+
+<script>
+function togglePassword(id, icon){
+  const input = document.getElementById(id);
+  if(input.type === "password"){
+    input.type = "text";
+    icon.classList.replace("fa-eye","fa-eye-slash");
+  }else{
+    input.type = "password";
+    icon.classList.replace("fa-eye-slash","fa-eye");
+  }
+}
+
+function openLogin() {
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('roleSelectBox').style.display = 'block';
+  document.getElementById('customerLoginBox').style.display = 'none';
+  document.getElementById('adminLoginBox').style.display = 'none';
+}
+
+function closeLogin() {
+  document.getElementById('loginModal').style.display = 'none';
+}
+
+function showCustomerLogin() {
+  document.getElementById('roleSelectBox').style.display = 'none';
+  document.getElementById('customerLoginBox').style.display = 'block';
+}
+
+function showAdminLogin() {
+  document.getElementById('roleSelectBox').style.display = 'none';
+  document.getElementById('adminLoginBox').style.display = 'block';
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById('loginModal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+}
+</script>
+
+</body>
+</html>
+<?php
+session_start();
+include "db.php";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+* { margin: 0; padding: 0; font-family: Poppins, sans-serif; }
+
+body {
+  display: flex;
+  background: #f7e9d5;
+  color: #4b3b25;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 230px;
+  background: #9c7742;
+  color: white;
+  padding: 20px 0;
+  border-right: 3px solid #c9a66b;
+}
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.sidebar a {
+  display: block;
+  padding: 15px 25px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sidebar a:hover,
+.sidebar a.active {
+  background: #7a5c30;
+}
+
+/* Main */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+.topbar {
+  background: #fff7ec;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #d4b68a;
+}
+
+.logout-btn {
+  background: #9c7742;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+
+/* Content */
+.content {
+  padding: 25px;
+  overflow-y: auto;
+}
+
+.card {
+  background: #fffdf9;
+  border: 1px solid #e0c6a1;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e0c6a1;
+  text-align: left;
+}
+
+th {
+  background: #9c7742;
+  color: white;
+}
+
+.status-btn {
+  background: #9c7742;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.status-btn:hover {
+  background: #7a5c30;
+}
+
+input[type="number"] {
+  padding: 6px;
+  width: 80px;
+}
+
+textarea {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>ADMIN PANEL</h2>
+  <a class="active" onclick="showSection('dashboard', this)">Dashboard</a>
+  <a onclick="showSection('orders', this)">Manage Orders</a>
+  <a onclick="showSection('stock', this)">Manage Stock</a>
+  <a onclick="showSection('feedback', this)">Feedback</a>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <h3 id="page-title">Dashboard</h3>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section">
+      <div class="card">
+        <h3>Welcome Admin</h3>
+        <p>Use the menu to manage orders, stock and feedback.</p>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="orders" class="section" style="display:none;">
+      <div class="card">
+        <h3>Manage Orders</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Material</th>
+              <th>Qty</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="orderData">
+            <tr><td colspan="6">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="stock" class="section" style="display:none;">
+      <div class="card">
+        <h3>Manage Product Stock</h3>
+
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Material</th>
+            <th>Price</th>
+            <th>Current Stock</th>
+            <th>New Stock</th>
+            <th>Action</th>
+          </tr>
+
+<?php
+$products = $conn->query("
+  SELECT product_id, material_name, price, stock 
+  FROM products
+  ORDER BY product_id ASC
+");
+while ($p = $products->fetch_assoc()):
+?>
+<tr>
+  <td><?= $p['product_id'] ?></td>
+  <td><?= htmlspecialchars($p['material_name']) ?></td>
+  <td>₹<?= number_format($p['price']) ?></td>
+  <td><b><?= $p['stock'] ?></b></td>
+  <td>
+    <input type="number" id="stock<?= $p['product_id'] ?>"
+           value="<?= $p['stock'] ?>" min="0">
+  </td>
+  <td>
+    <button class="status-btn"
+      onclick="updateStock(<?= $p['product_id'] ?>)">
+      Update
+    </button>
+  </td>
+</tr>
+<?php endwhile; ?>
+
+        </table>
+      </div>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div id="feedback" class="section" style="display:none;">
+      <div class="card">
+        <h3>Customer Feedback</h3>
+
+        <table>
+          <tr>
+            <th>User</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Reply</th>
+          </tr>
+
+<?php
+$fb = $conn->query("
+  SELECT f.*, c.username
+  FROM feedback f
+  JOIN customers c ON f.customer_id = c.customer_id
+  ORDER BY f.id DESC
+");
+while ($row = $fb->fetch_assoc()):
+?>
+<tr>
+  <td><?= $row['username'] ?></td>
+  <td><?= $row['message'] ?></td>
+  <td><?= $row['created_at'] ?></td>
+  <td>
+    <form action="reply_feedback.php" method="POST">
+      <input type="hidden" name="id" value="<?= $row['id'] ?>">
+      <textarea name="reply"><?= $row['admin_reply'] ?></textarea><br>
+      <button class="status-btn">Send</button>
+    </form>
+  </td>
+</tr>
+<?php endwhile; ?>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
+
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove("active"));
+  el.classList.add("active");
+
+  document.getElementById("page-title").innerText =
+    el.innerText;
+}
+
+function loadOrders() {
+  fetch("load_orders.php")
+    .then(res => res.text())
+    .then(data => document.getElementById("orderData").innerHTML = data);
+}
+
+function updateStock(product_id) {
+  let stock = document.getElementById("stock" + product_id).value;
+
+  let fd = new FormData();
+  fd.append("product_id", product_id);
+  fd.append("stock", stock);
+
+  fetch("update_stock.php", {
+    method: "POST",
+    body: fd
+  })
+  .then(res => res.text())
+  .then(data => {
+    if (data.trim() === "success") {
+      alert("Stock updated!");
+    } else {
+      alert("Error: " + data);
+    }
+  });
+}
+
+function logout() {
+  window.location.href = "logout.php";
+}
+</script>
+
+</body>
+</html>

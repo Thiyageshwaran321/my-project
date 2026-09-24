@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Delivery Tracker</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    input, button { padding: 10px; margin: 10px; font-size: 16px; }
+    #map { height: 500px; width: 90%; margin: auto; border: 1px solid #333; }
+  </style>
+</head>
+<body>
+
+<h2>Track Order (Driver or Customer)</h2>
+
+<input type="text" id="userType" placeholder="Your role: driver or customer" />
+<input type="text" id="myPhone" placeholder="Your Phone Number" />
+<input type="text" id="trackPhone" placeholder="Track Phone Number" />
+<button onclick="startTracking()">Start Tracking</button>
+
+<div id="map"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+
+<script>
+let map, marker;
+
+function initMap(lat = 12.9716, lng = 77.5946) {
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 14,
+    center: { lat, lng }
+  });
+  marker = new google.maps.Marker({
+    map: map,
+    position: { lat, lng },
+    title: "Tracked Location"
+  });
+}
+
+function startTracking() {
+  const userType = document.getElementById("userType").value.trim().toLowerCase();
+  const myPhone = document.getElementById("myPhone").value.trim();
+  const trackPhone = document.getElementById("trackPhone").value.trim();
+
+  if (!userType || !myPhone || !trackPhone) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  // Upload my location to server
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      const formData = new FormData();
+      formData.append("phone", myPhone);
+      formData.append("lat", lat);
+      formData.append("lng", lng);
+      formData.append("type", userType);
+
+      fetch("update_location.php", {
+        method: "POST",
+        body: formData
+      }).then(res => res.text()).then(console.log);
+    });
+  }
+
+  // Fetch other user's location repeatedly
+  const targetType = userType === "driver" ? "customer" : "driver";
+  setInterval(() => {
+    fetch(`get_location.php?phone=${trackPhone}&type=${targetType}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.latitude && data.longitude) {
+          const pos = { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
+          marker.setPosition(pos);
+          map.setCenter(pos);
+        }
+      });
+  }, 5000);
+}
+
+window.onload = () => initMap();
+</script>
+</body>
+</html>
